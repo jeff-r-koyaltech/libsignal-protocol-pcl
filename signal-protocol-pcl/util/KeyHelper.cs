@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2015 smndtrl
+ * Copyright (C) 2016 langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Security.Cryptography;
-using Windows.Storage.Streams;
+using PCLCrypto;
+using static PCLCrypto.WinRTCrypto;
 
 namespace libaxolotl.util
 {
@@ -146,13 +146,8 @@ namespace libaxolotl.util
 
         public static byte[] generateSenderKey()
         {
-
-            byte[] key = new byte[32];
-            IBuffer random = CryptographicBuffer.GenerateRandom(32);
-            CryptographicBuffer.CopyToByteArray(random, out key);
-
+            byte[] key = CryptographicBuffer.GenerateRandom(32);
             return key;
-
         }
 
         public static uint generateSenderKeyId()

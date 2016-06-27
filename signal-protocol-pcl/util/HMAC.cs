@@ -1,28 +1,28 @@
-﻿/** 
- * Copyright (C) 2015 smndtrl
- * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
+﻿
 
+using PCLCrypto;
+/** 
+* Copyright (C) 2016 langboost
+* 
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+* 
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Windows.Security.Cryptography;
-using Windows.Security.Cryptography.Core;
-using Windows.Storage.Streams;
+using static PCLCrypto.WinRTCrypto;
 
 namespace libaxolotl.util
 {
@@ -30,19 +30,9 @@ namespace libaxolotl.util
     {
         public static byte[] sha256sum(byte[] key, byte[] message)
         {
-            MacAlgorithmProvider provider = MacAlgorithmProvider.OpenAlgorithm(MacAlgorithmNames.HmacSha256);
-
-            IBuffer buffKey = CryptographicBuffer.CreateFromByteArray(key);
-            CryptographicKey hmacKey = provider.CreateKey(buffKey);
-
-            IBuffer buffMessage = CryptographicBuffer.CreateFromByteArray(message);
-
-            IBuffer buffHMAC = CryptographicEngine.Sign(hmacKey, buffMessage);
-
-            byte[] hmac;
-
-            CryptographicBuffer.CopyToByteArray(buffHMAC, out hmac);
-
+            IMacAlgorithmProvider provider = MacAlgorithmProvider.OpenAlgorithm(MacAlgorithm.HmacSha256);
+            ICryptographicKey hmacKey = provider.CreateKey(key);
+            byte [] hmac = CryptographicEngine.Sign(hmacKey, message);
             return hmac;
         }
     }
@@ -51,118 +41,88 @@ namespace libaxolotl.util
     {
         public static byte[] Sign(byte[] key, byte[] message)
         {
-            MacAlgorithmProvider provider = MacAlgorithmProvider.OpenAlgorithm(MacAlgorithmNames.HmacSha256);
-
-            IBuffer buffKey = CryptographicBuffer.CreateFromByteArray(key);
-            CryptographicKey hmacKey = provider.CreateKey(buffKey);
-
-            IBuffer buffMessage = CryptographicBuffer.CreateFromByteArray(message);
-
-            IBuffer buffHMAC = CryptographicEngine.Sign(hmacKey, buffMessage);
-
-            byte[] hmac;
-
-            CryptographicBuffer.CopyToByteArray(buffHMAC, out hmac);
-
+            IMacAlgorithmProvider provider = MacAlgorithmProvider.OpenAlgorithm(MacAlgorithm.HmacSha256);
+            ICryptographicKey hmacKey = provider.CreateKey(key);
+            byte[] hmac = CryptographicEngine.Sign(hmacKey, message);
             return hmac;
         }
 
         public static bool Verify(byte[] key, byte[] message, byte[] signature)
         {
-            MacAlgorithmProvider provider = MacAlgorithmProvider.OpenAlgorithm(MacAlgorithmNames.HmacSha256);
+            IMacAlgorithmProvider provider = MacAlgorithmProvider.OpenAlgorithm(MacAlgorithm.HmacSha256);
 
-            IBuffer buffKey = CryptographicBuffer.CreateFromByteArray(key);
-            CryptographicKey hmacKey = provider.CreateKey(buffKey);
-
-            IBuffer buffMessage = CryptographicBuffer.CreateFromByteArray(message);
-
-            IBuffer buffSignature = CryptographicBuffer.CreateFromByteArray(signature);
-
-            return CryptographicEngine.VerifySignature(hmacKey, buffMessage, buffSignature);
+            ICryptographicKey hmacKey = provider.CreateKey(key);
+            return CryptographicEngine.VerifySignature(hmacKey, message, signature);
         }
     }
 
+    /// <summary>
+    /// Encryption helpers
+    /// </summary>
     public class Encrypt
     {
+        /// <summary>
+        /// Computes PKCS5 for the message
+        /// </summary>
+        /// <param name="message">plaintext</param>
+        /// <returns>PKCS5 of the message</returns>
         public static byte[] aesCbcPkcs5(byte[] message, byte[] key, byte[] iv)
         {
-            SymmetricKeyAlgorithmProvider objAlg = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7); // PKCS5
-            IBuffer buffKey = CryptographicBuffer.CreateFromByteArray(key);
-            CryptographicKey ckey = objAlg.CreateSymmetricKey(buffKey);
-
-
-            IBuffer buffPlaintext = CryptographicBuffer.CreateFromByteArray(message);
-            IBuffer buffIV = CryptographicBuffer.CreateFromByteArray(iv);
-            IBuffer buffEncrypt = CryptographicEngine.Encrypt(ckey, buffPlaintext, buffIV);
-
-            byte[] ret;
-            CryptographicBuffer.CopyToByteArray(buffEncrypt, out ret);
-
-            return ret;
+            ISymmetricKeyAlgorithmProvider objAlg = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithm.AesCbcPkcs7); // PKCS5
+            ICryptographicKey ckey = objAlg.CreateSymmetricKey(key);
+            byte [] result = CryptographicEngine.Encrypt(ckey, message, iv);
+            return result;
         }
+
         public static byte[] aesCtr(byte[] message, byte[] key, uint counter)
         {
-            SymmetricKeyAlgorithmProvider objAlg = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7); // CRT
-            IBuffer buffKey = CryptographicBuffer.CreateFromByteArray(key);
-            CryptographicKey ckey = objAlg.CreateSymmetricKey(buffKey);
+            ISymmetricKeyAlgorithmProvider objAlg = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithm.AesCbcPkcs7); // CRT
+            ICryptographicKey ckey = objAlg.CreateSymmetricKey(key);
 
             byte[] ivBytes = new byte[16];
             ByteUtil.intToByteArray(ivBytes, 0, (int)counter);
 
-            IBuffer buffPlaintext = CryptographicBuffer.CreateFromByteArray(message);
-            IBuffer buffIV = CryptographicBuffer.CreateFromByteArray(ivBytes);
-            IBuffer buffEncrypt = CryptographicEngine.Encrypt(ckey, buffPlaintext, buffIV);
-
-            byte[] ret;
-            CryptographicBuffer.CopyToByteArray(buffEncrypt, out ret);
-
-            return ret;
+            byte [] result = CryptographicEngine.Encrypt(ckey, message, ivBytes);
+            return result;
         }
 
 
     }
 
+    /// <summary>
+    /// Decryption helpers
+    /// </summary>
     public class Decrypt
     {
         public static byte[] aesCbcPkcs5(byte[] message, byte[] key, byte[] iv)
         {
-            SymmetricKeyAlgorithmProvider objAlg = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7);
-            IBuffer buffKey = CryptographicBuffer.CreateFromByteArray(key);
-            CryptographicKey ckey = objAlg.CreateSymmetricKey(buffKey);
+            ISymmetricKeyAlgorithmProvider objAlg = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithm.AesCbcPkcs7);
+            ICryptographicKey ckey = objAlg.CreateSymmetricKey(key);
 
             if (message.Length % objAlg.BlockLength != 0) throw new Exception("Invalid ciphertext length");
-
-
-            IBuffer buffPlaintext = CryptographicBuffer.CreateFromByteArray(message);
-            IBuffer buffIV = CryptographicBuffer.CreateFromByteArray(iv);
-            IBuffer buffEncrypt = CryptographicEngine.Decrypt(ckey, buffPlaintext, buffIV);
-
-            byte[] ret;
-            CryptographicBuffer.CopyToByteArray(buffEncrypt, out ret);
-            return ret;
+            
+            byte [] result = CryptographicEngine.Decrypt(ckey, message, iv);
+            return result;
         }
 
         public static byte[] aesCtr(byte[] message, byte[] key, uint counter)
         {
-            SymmetricKeyAlgorithmProvider objAlg = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithmNames.AesCbcPkcs7);
-            IBuffer buffKey = CryptographicBuffer.CreateFromByteArray(key);
-            CryptographicKey ckey = objAlg.CreateSymmetricKey(buffKey);
+            ISymmetricKeyAlgorithmProvider objAlg = SymmetricKeyAlgorithmProvider.OpenAlgorithm(SymmetricAlgorithm.AesCbcPkcs7);
+            ICryptographicKey ckey = objAlg.CreateSymmetricKey(key);
 
             byte[] ivBytes = new byte[16];
             ByteUtil.intToByteArray(ivBytes, 0, (int)counter);
 
-            IBuffer buffPlaintext = CryptographicBuffer.CreateFromByteArray(message);
-            IBuffer buffIV = CryptographicBuffer.CreateFromByteArray(ivBytes);
-            IBuffer buffEncrypt = CryptographicEngine.Decrypt(ckey, buffPlaintext, buffIV);
-
-            byte[] ret;
-            CryptographicBuffer.CopyToByteArray(buffEncrypt, out ret);
-            return ret;
+            byte [] result = CryptographicEngine.Decrypt(ckey, message, ivBytes);
+            return result;
         }
     }
 
     public static class CryptoHelper
     {
+        /// <summary>
+        /// TODO: dead code?
+        /// </summary>
         public static void Shuffle<T>(this IList<T> list)
         {
             Random rng = new Random();

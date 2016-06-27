@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2015 smndtrl, langboost
+ * Copyright (C) 2016 langboost, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//using Windows.Security.Cryptography;
-using Windows.Storage.Streams;
 using libaxolotl.ecc.impl;
+//using Windows.Security.Cryptography;
+using static PCLCrypto.WinRTCrypto;
 
 namespace libaxolotl.ecc
 {
@@ -73,9 +73,7 @@ namespace libaxolotl.ecc
 		/// <returns>A randomly generated Curve25519 keypair.</returns>
 		public Curve25519KeyPair generateKeyPair()
 		{
-			byte[] random;
-			IBuffer rnd = CryptographicBuffer.GenerateRandom(32);
-			CryptographicBuffer.CopyToByteArray(rnd, out random);
+            byte[] random = CryptographicBuffer.GenerateRandom(32);
 			byte[] privateKey = provider.generatePrivateKey(random);
 			byte[] publicKey = provider.generatePublicKey(privateKey);
 
@@ -102,9 +100,7 @@ namespace libaxolotl.ecc
 		public byte[] calculateSignature(byte[] privateKey, byte[] message)
 		{
 
-			byte[] random;
-			IBuffer rnd = CryptographicBuffer.GenerateRandom(64);
-			CryptographicBuffer.CopyToByteArray(rnd, out random);
+            byte[] random = CryptographicBuffer.GenerateRandom(64);
 			return provider.calculateSignature(random, privateKey, message);
 		}
 
