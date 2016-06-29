@@ -5,38 +5,48 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace signal_protocol_pcl.ecc.impl
+namespace libaxolotl.ecc.impl
 {
     class Curve25519ManagedProvider : ICurve25519Provider
     {
+        private org.whispersystems.curve25519.Curve25519 curve;
+        /// <summary>
+        /// ctor
+        /// </summary>
+        /// <param name="type">Such as Curve25519.CSHARP or Curve25519.BEST</param>
+        public Curve25519ManagedProvider(string type)
+        {
+            curve = org.whispersystems.curve25519.Curve25519.getInstance(type);
+        }
+
         public byte[] calculateAgreement(byte[] ourPrivate, byte[] theirPublic)
         {
-            return null;//todo
+            return curve.calculateAgreement(ourPrivate, theirPublic);
         }
 
         public byte[] calculateSignature(byte[] random, byte[] privateKey, byte[] message)
         {
-            throw new NotImplementedException();
+            return curve.calculateSignature(random, privateKey, message);
         }
 
         public byte[] generatePrivateKey(byte[] random)
         {
-            throw new NotImplementedException();
+            return curve.generatePrivateKey(random);
         }
 
         public byte[] generatePublicKey(byte[] privateKey)
         {
-            throw new NotImplementedException();
+            return curve.generatePublicKey(privateKey);
         }
 
         public bool isNative()
         {
-            throw new NotImplementedException();
+            return curve.isNative();
         }
 
         public bool verifySignature(byte[] publicKey, byte[] message, byte[] signature)
         {
-            throw new NotImplementedException();
+            return curve.verifySignature(publicKey, message, signature);
         }
     }
 }

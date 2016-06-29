@@ -27,7 +27,7 @@ namespace libaxolotl.ecc
 	public enum Curve25519ProviderType
 	{
 		/// <summary>
-		/// Attempt to provide a native implementation. If one is not available, error out (TODO, could add managed fallback once implemented)
+		/// Attempt to provide a native implementation. If one is not available, error out (TODO, break apart managed and native implementations in NuGet packages where we can dynamically use what is best based on the current environment).
 		/// </summary>
 		BEST = 0x05,
 		/// <summary>
@@ -51,9 +51,22 @@ namespace libaxolotl.ecc
 		public static Curve25519 getInstance(Curve25519ProviderType type)
 		{
 			if (instance == null)
-			{
-				instance = new Curve25519();
-				instance.provider = (ICurve25519Provider)new Curve25519NativeProvider();
+            {
+                instance = new Curve25519();
+                switch (type)
+                {
+                    case Curve25519ProviderType.NATIVE:
+                        {
+                            instance.provider = (ICurve25519Provider)new Curve25519NativeProvider();
+                            break;
+                        }
+                    case Curve25519ProviderType.BEST:
+                        {
+                            instance.provider = (ICurve25519Provider)new Curve25519ManagedProvider(
+                                org.whispersystems.curve25519.Curve25519.BEST);
+                            break;
+                        }
+                }
 			}
 			return instance;
 		}
