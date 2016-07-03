@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,15 +16,11 @@
  */
 
 using Google.ProtocolBuffers;
-using libaxolotl.ecc;
-using libaxolotl.util;
+using libsignal.ecc;
+using libsignal.util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.protocol
+namespace libsignal.protocol
 {
     public partial class SenderKeyDistributionMessage : CiphertextMessage
     {

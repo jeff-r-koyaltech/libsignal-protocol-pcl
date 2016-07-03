@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,19 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace libaxolotl.groups.state
+namespace libsignal.groups.state
 {
     public interface SenderKeyStore
     {
 
         /**
-         * Commit to storage the {@link org.whispersystems.libaxolotl.groups.state.SenderKeyRecord} for a
+         * Commit to storage the {@link org.whispersystems.libsignal.groups.state.SenderKeyRecord} for a
          * given (groupId + senderId + deviceId) tuple.
          *
          * @param senderKeyName the (groupId + senderId + deviceId) tuple.
@@ -36,7 +30,7 @@ namespace libaxolotl.groups.state
         void storeSenderKey(SenderKeyName senderKeyName, SenderKeyRecord record);
 
         /**
-         * Returns a copy of the {@link org.whispersystems.libaxolotl.groups.state.SenderKeyRecord}
+         * Returns a copy of the {@link org.whispersystems.libsignal.groups.state.SenderKeyRecord}
          * corresponding to the (groupId + senderId + deviceId) tuple, or a new SenderKeyRecord if
          * one does not currently exist.
          * <p>

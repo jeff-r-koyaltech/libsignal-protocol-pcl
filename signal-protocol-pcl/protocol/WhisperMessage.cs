@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,18 +16,15 @@
  */
 
 using Google.ProtocolBuffers;
-using libaxolotl.ecc;
-using libaxolotl.util;
+using libsignal.ecc;
+using libsignal.util;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.protocol
+namespace libsignal.protocol
 {
-    public partial class WhisperMessage : CiphertextMessage
+    public partial class SignalMessage : CiphertextMessage
     {
 
         private static readonly int MAC_LENGTH = 8;
@@ -39,7 +36,7 @@ namespace libaxolotl.protocol
         private readonly byte[] ciphertext;
         private readonly byte[] serialized;
 
-        public WhisperMessage(byte[] serialized)
+        public SignalMessage(byte[] serialized)
         {
             try
             {
@@ -58,21 +55,21 @@ namespace libaxolotl.protocol
                     throw new InvalidMessageException("Unknown version: " + ByteUtil.highBitsToInt(version));
                 }
 
-                WhisperProtos.WhisperMessage whisperMessage = WhisperProtos.WhisperMessage.ParseFrom(message);
+                WhisperProtos.SignalMessage SignalMessage = WhisperProtos.SignalMessage.ParseFrom(message);
 
-                if (!whisperMessage.HasCiphertext ||
-                    !whisperMessage.HasCounter ||
-                    !whisperMessage.HasRatchetKey)
+                if (!SignalMessage.HasCiphertext ||
+                    !SignalMessage.HasCounter ||
+                    !SignalMessage.HasRatchetKey)
                 {
                     throw new InvalidMessageException("Incomplete message.");
                 }
 
                 this.serialized = serialized;
-                this.senderRatchetKey = Curve.decodePoint(whisperMessage.RatchetKey.ToByteArray(), 0);
+                this.senderRatchetKey = Curve.decodePoint(SignalMessage.RatchetKey.ToByteArray(), 0);
                 this.messageVersion = (uint)ByteUtil.highBitsToInt(version);
-                this.counter = whisperMessage.Counter;
-                this.previousCounter = whisperMessage.PreviousCounter;
-                this.ciphertext = whisperMessage.Ciphertext.ToByteArray();
+                this.counter = SignalMessage.Counter;
+                this.previousCounter = SignalMessage.PreviousCounter;
+                this.ciphertext = SignalMessage.Ciphertext.ToByteArray();
             }
             catch (/*InvalidProtocolBufferException | InvalidKeyException | Parse*/Exception e)
             {
@@ -80,13 +77,13 @@ namespace libaxolotl.protocol
             }
         }
 
-        public WhisperMessage(uint messageVersion, byte[] macKey, ECPublicKey senderRatchetKey,
+        public SignalMessage(uint messageVersion, byte[] macKey, ECPublicKey senderRatchetKey,
                               uint counter, uint previousCounter, byte[] ciphertext,
                               IdentityKey senderIdentityKey,
                               IdentityKey receiverIdentityKey)
         {
             byte[] version = { ByteUtil.intsToByteHighAndLow((int)messageVersion, (int)CURRENT_VERSION) };
-            byte[] message = WhisperProtos.WhisperMessage.CreateBuilder()
+            byte[] message = WhisperProtos.SignalMessage.CreateBuilder()
                                            .SetRatchetKey(ByteString.CopyFrom(senderRatchetKey.serialize()))
                                            .SetCounter(counter)
                                            .SetPreviousCounter(previousCounter)

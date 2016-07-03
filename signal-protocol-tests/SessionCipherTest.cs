@@ -1,30 +1,38 @@
-﻿using libaxolotl;
-using libaxolotl.ecc;
-using libaxolotl.protocol;
-using libaxolotl.ratchet;
-using libaxolotl.state;
+﻿/** 
+ * Copyright (C) 2016 langboost
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using libsignal;
+using libsignal.ecc;
+using libsignal.protocol;
+using libsignal.ratchet;
+using libsignal.state;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Strilanc.Value;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
 
-namespace libaxolotl_test
+namespace libsignal_test
 {
     [TestClass]
     public class SessionCipherTest
     {
-        [TestMethod, TestCategory("libaxolotl")]
-        public void testBasicSessionV2()
-        {
-            SessionRecord aliceSessionRecord = new SessionRecord();
-            SessionRecord bobSessionRecord = new SessionRecord();
-
-            initializeSessionsV2(aliceSessionRecord.getSessionState(), bobSessionRecord.getSessionState());
-            runInteraction(aliceSessionRecord, bobSessionRecord);
-        }
-
-        [TestMethod, TestCategory("libaxolotl")]
+        [TestMethod, TestCategory("libsignal")]
         public void testBasicSessionV3()
         {
             SessionRecord aliceSessionRecord = new SessionRecord();
@@ -34,7 +42,7 @@ namespace libaxolotl_test
             runInteraction(aliceSessionRecord, bobSessionRecord);
         }
 
-        [TestMethod, TestCategory("libaxolotl")]
+        [TestMethod, TestCategory("libsignal")]
         public void testMessageKeyLimits()
         {
             SessionRecord aliceSessionRecord = new SessionRecord();
@@ -42,14 +50,14 @@ namespace libaxolotl_test
 
             initializeSessionsV3(aliceSessionRecord.getSessionState(), bobSessionRecord.getSessionState());
 
-            AxolotlStore aliceStore = new TestInMemoryAxolotlStore();
-            AxolotlStore bobStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
+            SignalProtocolStore bobStore = new TestInMemorySignalProtocolStore();
 
-            aliceStore.StoreSession(new AxolotlAddress("+14159999999", 1), aliceSessionRecord);
-            bobStore.StoreSession(new AxolotlAddress("+14158888888", 1), bobSessionRecord);
+            aliceStore.StoreSession(new SignalProtocolAddress("+14159999999", 1), aliceSessionRecord);
+            bobStore.StoreSession(new SignalProtocolAddress("+14158888888", 1), bobSessionRecord);
 
-            SessionCipher aliceCipher = new SessionCipher(aliceStore, new AxolotlAddress("+14159999999", 1));
-            SessionCipher bobCipher = new SessionCipher(bobStore, new AxolotlAddress("+14158888888", 1));
+            SessionCipher aliceCipher = new SessionCipher(aliceStore, new SignalProtocolAddress("+14159999999", 1));
+            SessionCipher bobCipher = new SessionCipher(bobStore, new SignalProtocolAddress("+14158888888", 1));
 
             List<CiphertextMessage> inflight = new List<CiphertextMessage>();
 
@@ -58,15 +66,15 @@ namespace libaxolotl_test
                 inflight.Add(aliceCipher.encrypt(Encoding.UTF8.GetBytes("you've never been so hungry, you've never been so cold")));
             }
 
-            bobCipher.decrypt(new WhisperMessage(inflight[1000].serialize()));
-            bobCipher.decrypt(new WhisperMessage(inflight[inflight.Count - 1].serialize()));
+            bobCipher.decrypt(new SignalMessage(inflight[1000].serialize()));
+            bobCipher.decrypt(new SignalMessage(inflight[inflight.Count - 1].serialize()));
 
             try
             {
-                bobCipher.decrypt(new WhisperMessage(inflight[0].serialize()));
+                bobCipher.decrypt(new SignalMessage(inflight[0].serialize()));
                 throw new Exception("Should have failed!");
             }
-            catch (DuplicateMessageException dme)
+            catch (DuplicateMessageException)
             {
                 // good
             }
@@ -74,24 +82,24 @@ namespace libaxolotl_test
 
         private void runInteraction(SessionRecord aliceSessionRecord, SessionRecord bobSessionRecord)
         {
-            AxolotlStore aliceStore = new TestInMemoryAxolotlStore();
-            AxolotlStore bobStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
+            SignalProtocolStore bobStore = new TestInMemorySignalProtocolStore();
 
-            aliceStore.StoreSession(new AxolotlAddress("+14159999999", 1), aliceSessionRecord);
-            bobStore.StoreSession(new AxolotlAddress("+14158888888", 1), bobSessionRecord);
+            aliceStore.StoreSession(new SignalProtocolAddress("+14159999999", 1), aliceSessionRecord);
+            bobStore.StoreSession(new SignalProtocolAddress("+14158888888", 1), bobSessionRecord);
 
-            SessionCipher aliceCipher = new SessionCipher(aliceStore, new AxolotlAddress("+14159999999", 1));
-            SessionCipher bobCipher = new SessionCipher(bobStore, new AxolotlAddress("+14158888888", 1));
+            SessionCipher aliceCipher = new SessionCipher(aliceStore, new SignalProtocolAddress("+14159999999", 1));
+            SessionCipher bobCipher = new SessionCipher(bobStore, new SignalProtocolAddress("+14158888888", 1));
 
             byte[] alicePlaintext = Encoding.UTF8.GetBytes("This is a plaintext message.");
             CiphertextMessage message = aliceCipher.encrypt(alicePlaintext);
-            byte[] bobPlaintext = bobCipher.decrypt(new WhisperMessage(message.serialize()));
+            byte[] bobPlaintext = bobCipher.decrypt(new SignalMessage(message.serialize()));
 
             CollectionAssert.AreEqual(alicePlaintext, bobPlaintext);
 
             byte[] bobReply = Encoding.UTF8.GetBytes("This is a message from Bob.");
             CiphertextMessage reply = bobCipher.encrypt(bobReply);
-            byte[] receivedReply = aliceCipher.decrypt(new WhisperMessage(reply.serialize()));
+            byte[] receivedReply = aliceCipher.decrypt(new SignalMessage(reply.serialize()));
 
             CollectionAssert.AreEqual(bobReply, receivedReply);
 
@@ -111,8 +119,8 @@ namespace libaxolotl_test
 
             for (int i = 0; i < aliceCiphertextMessages.Count / 2; i++)
             {
-                byte[] receivedPlaintext = bobCipher.decrypt(new WhisperMessage(aliceCiphertextMessages[i].serialize()));
-                CollectionAssert.AreEqual(receivedPlaintext, alicePlaintextMessages[i]);
+                byte[] receivedPlaintext = bobCipher.decrypt(new SignalMessage(aliceCiphertextMessages[i].serialize()));
+                Assert.IsTrue(libsignal.util.ByteUtil.isEqual(receivedPlaintext, alicePlaintextMessages[i]));
             }
 
             List<CiphertextMessage> bobCiphertextMessages = new List<CiphertextMessage>();
@@ -131,59 +139,22 @@ namespace libaxolotl_test
 
             for (int i = 0; i < bobCiphertextMessages.Count / 2; i++)
             {
-                byte[] receivedPlaintext = aliceCipher.decrypt(new WhisperMessage(bobCiphertextMessages[i].serialize()));
+                byte[] receivedPlaintext = aliceCipher.decrypt(new SignalMessage(bobCiphertextMessages[i].serialize()));
                 CollectionAssert.AreEqual(receivedPlaintext, bobPlaintextMessages[i]);
             }
 
             for (int i = aliceCiphertextMessages.Count / 2; i < aliceCiphertextMessages.Count; i++)
             {
-                byte[] receivedPlaintext = bobCipher.decrypt(new WhisperMessage(aliceCiphertextMessages[i].serialize()));
+                byte[] receivedPlaintext = bobCipher.decrypt(new SignalMessage(aliceCiphertextMessages[i].serialize()));
                 CollectionAssert.AreEqual(receivedPlaintext, alicePlaintextMessages[i]);
             }
 
             for (int i = bobCiphertextMessages.Count / 2; i < bobCiphertextMessages.Count; i++)
             {
-                byte[] receivedPlaintext = aliceCipher.decrypt(new WhisperMessage(bobCiphertextMessages[i].serialize()));
+                byte[] receivedPlaintext = aliceCipher.decrypt(new SignalMessage(bobCiphertextMessages[i].serialize()));
                 CollectionAssert.AreEqual(receivedPlaintext, bobPlaintextMessages[i]);
             }
         }
-
-        private void initializeSessionsV2(SessionState aliceSessionState, SessionState bobSessionState)
-        {
-            ECKeyPair aliceIdentityKeyPair = Curve.generateKeyPair();
-            IdentityKeyPair aliceIdentityKey = new IdentityKeyPair(new IdentityKey(aliceIdentityKeyPair.getPublicKey()),
-                                                                   aliceIdentityKeyPair.getPrivateKey());
-            ECKeyPair aliceBaseKey = Curve.generateKeyPair();
-            ECKeyPair aliceEphemeralKey = Curve.generateKeyPair();
-
-            ECKeyPair bobIdentityKeyPair = Curve.generateKeyPair();
-            IdentityKeyPair bobIdentityKey = new IdentityKeyPair(new IdentityKey(bobIdentityKeyPair.getPublicKey()),
-                                                                 bobIdentityKeyPair.getPrivateKey());
-            ECKeyPair bobBaseKey = Curve.generateKeyPair();
-            ECKeyPair bobEphemeralKey = bobBaseKey;
-
-            AliceAxolotlParameters aliceParameters = AliceAxolotlParameters.newBuilder()
-                .setOurIdentityKey(aliceIdentityKey)
-                .setOurBaseKey(aliceBaseKey)
-                .setTheirIdentityKey(bobIdentityKey.getPublicKey())
-                .setTheirSignedPreKey(bobEphemeralKey.getPublicKey())
-                .setTheirRatchetKey(bobEphemeralKey.getPublicKey())
-                .setTheirOneTimePreKey(May<ECPublicKey>.NoValue)
-                .create();
-
-            BobAxolotlParameters bobParameters = BobAxolotlParameters.newBuilder()
-                .setOurIdentityKey(bobIdentityKey)
-                .setOurOneTimePreKey(May<ECKeyPair>.NoValue)
-                .setOurRatchetKey(bobEphemeralKey)
-                .setOurSignedPreKey(bobBaseKey)
-                .setTheirBaseKey(aliceBaseKey.getPublicKey())
-                .setTheirIdentityKey(aliceIdentityKey.getPublicKey())
-                .create();
-
-            RatchetingSession.initializeSession(aliceSessionState, 2, aliceParameters);
-            RatchetingSession.initializeSession(bobSessionState, 2, bobParameters);
-        }
-
         private void initializeSessionsV3(SessionState aliceSessionState, SessionState bobSessionState)
         {
             ECKeyPair aliceIdentityKeyPair = Curve.generateKeyPair();
@@ -202,7 +173,7 @@ namespace libaxolotl_test
 
             ECKeyPair bobPreKey = Curve.generateKeyPair();
 
-            AliceAxolotlParameters aliceParameters = AliceAxolotlParameters.newBuilder()
+            AliceSignalProtocolParameters aliceParameters = AliceSignalProtocolParameters.newBuilder()
                 .setOurBaseKey(aliceBaseKey)
                 .setOurIdentityKey(aliceIdentityKey)
                 .setTheirOneTimePreKey(May<ECPublicKey>.NoValue)
@@ -211,7 +182,7 @@ namespace libaxolotl_test
                 .setTheirIdentityKey(bobIdentityKey.getPublicKey())
                 .create();
 
-            BobAxolotlParameters bobParameters = BobAxolotlParameters.newBuilder()
+            BobSignalProtocolParameters bobParameters = BobSignalProtocolParameters.newBuilder()
                 .setOurRatchetKey(bobEphemeralKey)
                 .setOurSignedPreKey(bobBaseKey)
                 .setOurOneTimePreKey(May<ECKeyPair>.NoValue)
@@ -220,8 +191,8 @@ namespace libaxolotl_test
                 .setTheirBaseKey(aliceBaseKey.getPublicKey())
                 .create();
 
-            RatchetingSession.initializeSession(aliceSessionState, 3, aliceParameters);
-            RatchetingSession.initializeSession(bobSessionState, 3, bobParameters);
+            RatchetingSession.initializeSession(aliceSessionState, aliceParameters);
+            RatchetingSession.initializeSession(bobSessionState, bobParameters);
         }
 
         public static void Shuffle<T>(IList<T> list, Random rng)

@@ -1,21 +1,38 @@
-﻿using libaxolotl;
-using libaxolotl.groups;
-using libaxolotl.protocol;
+﻿/** 
+ * Copyright (C) 2016 langboost
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using libsignal;
+using libsignal.groups;
+using libsignal.protocol;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using static PCLCrypto.WinRTCrypto;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace libaxolotl_test.groups
+namespace libsignal_test.groups
 {
     [TestClass]
     public class GroupCipherTest
     {
-        private static readonly AxolotlAddress SENDER_ADDRESS = new AxolotlAddress("+14150001111", 1);
+        private static readonly SignalProtocolAddress SENDER_ADDRESS = new SignalProtocolAddress("+14150001111", 1);
         private static readonly SenderKeyName GROUP_SENDER = new SenderKeyName("nihilist history reading group", SENDER_ADDRESS);
 
-        [TestMethod, TestCategory("libaxolotl.groups")]
+        [TestMethod, TestCategory("libsignal.groups")]
         public void testNoSession()
         {
             InMemorySenderKeyStore aliceStore = new InMemorySenderKeyStore();
@@ -38,13 +55,13 @@ namespace libaxolotl_test.groups
                 byte[] plaintextFromAlice = bobGroupCipher.decrypt(ciphertextFromAlice);
                 throw new Exception("Should be no session!");
             }
-            catch (NoSessionException e)
+            catch (NoSessionException)
             {
                 // good
             }
         }
 
-        [TestMethod, TestCategory("libaxolotl.groups")]
+        [TestMethod, TestCategory("libsignal.groups")]
         public void testBasicEncryptDecrypt()
         {
             InMemorySenderKeyStore aliceStore = new InMemorySenderKeyStore();
@@ -66,7 +83,7 @@ namespace libaxolotl_test.groups
             Assert.AreEqual("smert ze smert", Encoding.UTF8.GetString(plaintextFromAlice));
         }
 
-        [TestMethod, TestCategory("libaxolotl.groups")]
+        [TestMethod, TestCategory("libsignal.groups")]
         public void testLargeMessages()
         {
             InMemorySenderKeyStore aliceStore = new InMemorySenderKeyStore();
@@ -91,7 +108,7 @@ namespace libaxolotl_test.groups
             CollectionAssert.AreEqual(plaintext, plaintextFromAlice);
         }
 
-        [TestMethod, TestCategory("libaxolotl.groups")]
+        [TestMethod, TestCategory("libsignal.groups")]
         public void testBasicRatchet()
         {
             InMemorySenderKeyStore aliceStore = new InMemorySenderKeyStore();
@@ -123,7 +140,7 @@ namespace libaxolotl_test.groups
                 bobGroupCipher.decrypt(ciphertextFromAlice);
                 throw new Exception("Should have ratcheted forward!");
             }
-            catch (DuplicateMessageException dme)
+            catch (DuplicateMessageException)
             {
                 // good
             }
@@ -136,7 +153,7 @@ namespace libaxolotl_test.groups
             Assert.AreEqual("smert ze smert3", Encoding.UTF8.GetString(plaintextFromAlice3));
         }
 
-        [TestMethod, TestCategory("libaxolotl.groups")]
+        [TestMethod, TestCategory("libsignal.groups")]
         public void testLateJoin()
         {
             InMemorySenderKeyStore aliceStore = new InMemorySenderKeyStore();
@@ -172,7 +189,7 @@ namespace libaxolotl_test.groups
             Assert.AreEqual("welcome to the group", Encoding.UTF8.GetString(plaintext));
         }
 
-        [TestMethod, TestCategory("libaxolotl.groups")]
+        [TestMethod, TestCategory("libsignal.groups")]
         public void testOutOfOrder()
         {
             InMemorySenderKeyStore aliceStore = new InMemorySenderKeyStore();
@@ -209,23 +226,23 @@ namespace libaxolotl_test.groups
             }
         }
 
-        [TestMethod, TestCategory("libaxolotl.groups")]
+        [TestMethod, TestCategory("libsignal.groups")]
         public void testEncryptNoSession()
         {
             InMemorySenderKeyStore aliceStore = new InMemorySenderKeyStore();
-            GroupCipher aliceGroupCipher = new GroupCipher(aliceStore, new SenderKeyName("coolio groupio", new AxolotlAddress("+10002223333", 1)));
+            GroupCipher aliceGroupCipher = new GroupCipher(aliceStore, new SenderKeyName("coolio groupio", new SignalProtocolAddress("+10002223333", 1)));
             try
             {
                 aliceGroupCipher.encrypt(Encoding.UTF8.GetBytes("up the punks"));
                 throw new Exception("Should have failed!");
             }
-            catch (NoSessionException nse)
+            catch (NoSessionException)
             {
                 // good
             }
         }
 
-        [TestMethod, TestCategory("libaxolotl.groups")]
+        [TestMethod, TestCategory("libsignal.groups")]
         public void testTooFarInFuture()
         {
             InMemorySenderKeyStore aliceStore = new InMemorySenderKeyStore();
@@ -254,13 +271,13 @@ namespace libaxolotl_test.groups
                 bobGroupCipher.decrypt(tooFarCiphertext);
                 throw new Exception("Should have failed!");
             }
-            catch (InvalidMessageException e)
+            catch (InvalidMessageException)
             {
                 // good
             }
         }
 
-        [TestMethod, TestCategory("libaxolotl.groups")]
+        [TestMethod, TestCategory("libsignal.groups")]
         public void testMessageKeyLimit()
         {
             InMemorySenderKeyStore aliceStore = new InMemorySenderKeyStore();
@@ -293,7 +310,7 @@ namespace libaxolotl_test.groups
                 bobGroupCipher.decrypt(inflight[0]);
                 throw new Exception("Should have failed!");
             }
-            catch (DuplicateMessageException e)
+            catch (DuplicateMessageException)
             {
                 // good
             }

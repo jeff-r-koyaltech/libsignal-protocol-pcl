@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost, langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,28 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using libaxolotl;
-using libaxolotl.state;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.state.impl
+namespace libsignal.state.impl
 {
-	public class InMemorySessionStore : SessionStore
+    public class InMemorySessionStore : SessionStore
 	{
 
 		static object Lock = new object();
 
-		private IDictionary<AxolotlAddress, byte[]> sessions = new Dictionary<AxolotlAddress, byte[]>();
+		private IDictionary<SignalProtocolAddress, byte[]> sessions = new Dictionary<SignalProtocolAddress, byte[]>();
 
 		public InMemorySessionStore() { }
 
 		//[MethodImpl(MethodImplOptions.Synchronized)]
-		public SessionRecord LoadSession(AxolotlAddress remoteAddress)
+		public SessionRecord LoadSession(SignalProtocolAddress remoteAddress)
 		{
 			try
 			{
@@ -63,7 +57,7 @@ namespace libaxolotl.state.impl
 		{
 			List<uint> deviceIds = new List<uint>();
 
-			foreach (AxolotlAddress key in sessions.Keys) //keySet()
+			foreach (SignalProtocolAddress key in sessions.Keys) //keySet()
 			{
 				if (key.getName().Equals(name) &&
 					key.getDeviceId() != 1)
@@ -76,19 +70,19 @@ namespace libaxolotl.state.impl
 		}
 
 
-		public void StoreSession(AxolotlAddress address, SessionRecord record)
+		public void StoreSession(SignalProtocolAddress address, SessionRecord record)
 		{
 			sessions[address] = record.serialize();
 		}
 
 
-		public bool ContainsSession(AxolotlAddress address)
+		public bool ContainsSession(SignalProtocolAddress address)
 		{
 			return sessions.ContainsKey(address);
 		}
 
 
-		public void DeleteSession(AxolotlAddress address)
+		public void DeleteSession(SignalProtocolAddress address)
 		{
 			sessions.Remove(address);
 		}
@@ -96,7 +90,7 @@ namespace libaxolotl.state.impl
 
 		public void DeleteAllSessions(String name)
 		{
-			foreach (AxolotlAddress key in sessions.Keys) // keySet()
+			foreach (SignalProtocolAddress key in sessions.Keys) // keySet()
 			{
 				if (key.getName().Equals(name))
 				{

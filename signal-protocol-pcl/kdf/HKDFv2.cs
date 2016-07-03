@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,15 +16,13 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.kdf
+namespace libsignal.kdf
 {
+    [Obsolete("Use HKDFv3 over v2 for new work.")]
     public class HKDFv2 : HKDF
     {
+        [Obsolete("HKDFv2 should be upgraded to v3.")]
         protected override int getIterationStartOffset()
         {
             return 0;

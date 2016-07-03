@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost, langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,24 +16,20 @@
  */
 
 using Google.ProtocolBuffers;
-using libaxolotl.ecc;
-using libaxolotl.groups.ratchet;
+using libsignal.ecc;
+using libsignal.groups.ratchet;
 using Strilanc.Value;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static libaxolotl.state.StorageProtos;
+using static libsignal.state.StorageProtos;
 
-namespace libaxolotl.groups.state
+namespace libsignal.groups.state
 {
-	/**
+    /**
      * Represents the state of an individual SenderKey ratchet.
      *
      * @author
      */
-	public class SenderKeyState
+    public class SenderKeyState
 	{
 		private static readonly int MAX_MESSAGE_KEYS = 2000;
 

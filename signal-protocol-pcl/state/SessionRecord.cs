@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static libaxolotl.state.StorageProtos;
+using static libsignal.state.StorageProtos;
 
-namespace libaxolotl.state
+namespace libsignal.state
 {
     /**
  * A SessionRecord encapsulates the state of an ongoing session.
@@ -102,7 +99,7 @@ namespace libaxolotl.state
 
         /**
          * Move the current {@link SessionState} into the list of "previous" session states,
-         * and replace the current {@link org.whispersystems.libaxolotl.state.SessionState}
+         * and replace the current {@link org.whispersystems.libsignal.state.SessionState}
          * with a fresh reset instance.
          */
         public void archiveCurrentState()

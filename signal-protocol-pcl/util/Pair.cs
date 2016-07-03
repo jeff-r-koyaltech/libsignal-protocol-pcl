@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +16,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.util
+namespace libsignal.util
 {
     public class Pair<T1, T2>
     {
@@ -46,11 +42,9 @@ namespace libaxolotl.util
 
         public bool equals(Object o)
         {
-            // TODO
-            return false;
-            /*return o is Pair &&
-                equal(((Pair)o).first(), first()) &&
-                equal(((Pair)o).second(), second());*/
+            return o is Pair<T1, T2> &&
+                equal(((Pair<T1, T2>)o).first(), first()) &&
+                equal(((Pair<T1, T2>)o).second(), second());
         }
 
         public int hashCode()

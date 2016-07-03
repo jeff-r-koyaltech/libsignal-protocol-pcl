@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,31 +15,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using libaxolotl.ecc;
-using libaxolotl.exceptions;
-using libaxolotl.protocol;
-using libaxolotl.ratchet;
-using libaxolotl.state;
-using libaxolotl.util;
+using libsignal.ecc;
+using libsignal.exceptions;
+using libsignal.protocol;
+using libsignal.ratchet;
+using libsignal.state;
+using libsignal.util;
 using Strilanc.Value;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
-namespace libaxolotl
+namespace libsignal
 {
     /**
  * SessionBuilder is responsible for setting up encrypted sessions.
- * Once a session has been established, {@link org.whispersystems.libaxolotl.SessionCipher}
+ * Once a session has been established, {@link org.whispersystems.libsignal.SessionCipher}
  * can be used to encrypt/decrypt messages in that session.
  * <p>
  * Sessions are built from one of three different possible vectors:
  * <ol>
- *   <li>A {@link org.whispersystems.libaxolotl.state.PreKeyBundle} retrieved from a server.</li>
- *   <li>A {@link org.whispersystems.libaxolotl.protocol.PreKeyWhisperMessage} received from a client.</li>
- *   <li>A {@link org.whispersystems.libaxolotl.protocol.KeyExchangeMessage} sent to or received from a client.</li>
+ *   <li>A {@link org.whispersystems.libsignal.state.PreKeyBundle} retrieved from a server.</li>
+ *   <li>A {@link PreKeySignalMessage} received from a client.</li>
+ *   <li>A {@link KeyExchangeMessage} sent to or received from a client.</li>
  * </ol>
  *
  * Sessions are constructed per recipientId + deviceId tuple.  Remote logical users are identified
@@ -54,21 +51,21 @@ namespace libaxolotl
         private readonly PreKeyStore preKeyStore;
         private readonly SignedPreKeyStore signedPreKeyStore;
         private readonly IdentityKeyStore identityKeyStore;
-        private readonly AxolotlAddress remoteAddress;
+        private readonly SignalProtocolAddress remoteAddress;
 
         /**
          * Constructs a SessionBuilder.
          *
-         * @param sessionStore The {@link org.whispersystems.libaxolotl.state.SessionStore} to store the constructed session in.
-         * @param preKeyStore The {@link  org.whispersystems.libaxolotl.state.PreKeyStore} where the client's local {@link org.whispersystems.libaxolotl.state.PreKeyRecord}s are stored.
-         * @param identityKeyStore The {@link org.whispersystems.libaxolotl.state.IdentityKeyStore} containing the client's identity key information.
+         * @param sessionStore The {@link org.whispersystems.libsignal.state.SessionStore} to store the constructed session in.
+         * @param preKeyStore The {@link  org.whispersystems.libsignal.state.PreKeyStore} where the client's local {@link org.whispersystems.libsignal.state.PreKeyRecord}s are stored.
+         * @param identityKeyStore The {@link org.whispersystems.libsignal.state.IdentityKeyStore} containing the client's identity key information.
          * @param remoteAddress The address of the remote user to build a session with.
          */
         public SessionBuilder(SessionStore sessionStore,
                               PreKeyStore preKeyStore,
                               SignedPreKeyStore signedPreKeyStore,
                               IdentityKeyStore identityKeyStore,
-                              AxolotlAddress remoteAddress)
+                              SignalProtocolAddress remoteAddress)
         {
             this.sessionStore = sessionStore;
             this.preKeyStore = preKeyStore;
@@ -79,64 +76,57 @@ namespace libaxolotl
 
         /**
          * Constructs a SessionBuilder
-         * @param store The {@link org.whispersystems.libaxolotl.state.AxolotlStore} to store all state information in.
+         * @param store The {@link SignalProtocolStore} to store all state information in.
          * @param remoteAddress The address of the remote user to build a session with.
          */
-        public SessionBuilder(AxolotlStore store, AxolotlAddress remoteAddress)
+        public SessionBuilder(SignalProtocolStore store, SignalProtocolAddress remoteAddress)
             : this(store, store, store, store, remoteAddress)
         {
         }
 
         /**
-         * Build a new session from a received {@link org.whispersystems.libaxolotl.protocol.PreKeyWhisperMessage}.
+         * Build a new session from a received {@link PreKeySignalMessage}.
          *
-         * After a session is constructed in this way, the embedded {@link org.whispersystems.libaxolotl.protocol.WhisperMessage}
+         * After a session is constructed in this way, the embedded {@link SignalMessage}
          * can be decrypted.
          *
-         * @param message The received {@link org.whispersystems.libaxolotl.protocol.PreKeyWhisperMessage}.
-         * @throws org.whispersystems.libaxolotl.InvalidKeyIdException when there is no local
-         *                                                             {@link org.whispersystems.libaxolotl.state.PreKeyRecord}
+         * @param message The received {@link PreKeySignalMessage}.
+         * @throws org.whispersystems.libsignal.InvalidKeyIdException when there is no local
+         *                                                             {@link org.whispersystems.libsignal.state.PreKeyRecord}
          *                                                             that corresponds to the PreKey ID in
          *                                                             the message.
-         * @throws org.whispersystems.libaxolotl.InvalidKeyException when the message is formatted incorrectly.
-         * @throws org.whispersystems.libaxolotl.UntrustedIdentityException when the {@link IdentityKey} of the sender is untrusted.
+         * @throws org.whispersystems.libsignal.InvalidKeyException when the message is formatted incorrectly.
+         * @throws org.whispersystems.libsignal.UntrustedIdentityException when the {@link IdentityKey} of the sender is untrusted.
          */
         /*package*/
-        internal May<uint>  process(SessionRecord sessionRecord, PreKeyWhisperMessage message)
+        internal May<uint>  process(SessionRecord sessionRecord, PreKeySignalMessage message)
         {
             uint messageVersion = message.getMessageVersion();
             IdentityKey theirIdentityKey = message.getIdentityKey();
-
-            May<uint> unsignedPreKeyId;
 
             if (!identityKeyStore.IsTrustedIdentity(remoteAddress.getName(), theirIdentityKey))
             {
                 throw new UntrustedIdentityException(remoteAddress.getName(), theirIdentityKey);
             }
 
-            switch (messageVersion)
-            {
-                case 2: unsignedPreKeyId = processV2(sessionRecord, message); break;
-                case 3: unsignedPreKeyId = processV3(sessionRecord, message); break;
-                default: throw new Exception("Unknown version: " + messageVersion);
-            }
+            May<uint> unsignedPreKeyId = processV3(sessionRecord, message);
 
             identityKeyStore.SaveIdentity(remoteAddress.getName(), theirIdentityKey);
             return unsignedPreKeyId;
         }
 
-        private May<uint> processV3(SessionRecord sessionRecord, PreKeyWhisperMessage message)
+        private May<uint> processV3(SessionRecord sessionRecord, PreKeySignalMessage message)
         {
 
             if (sessionRecord.hasSessionState(message.getMessageVersion(), message.getBaseKey().serialize()))
             {
-                //Log.w(TAG, "We've already setup a session for this V3 message, letting bundled message fall through...");
+                Debug.WriteLine("We've already setup a session for this V3 message, letting bundled message fall through...");
                 return May<uint>.NoValue;
             }
 
             ECKeyPair ourSignedPreKey = signedPreKeyStore.LoadSignedPreKey(message.getSignedPreKeyId()).getKeyPair();
 
-            BobAxolotlParameters.Builder parameters = BobAxolotlParameters.newBuilder();
+            BobSignalProtocolParameters.Builder parameters = BobSignalProtocolParameters.newBuilder();
 
             parameters.setTheirBaseKey(message.getBaseKey())
                       .setTheirIdentityKey(message.getIdentityKey())
@@ -155,7 +145,7 @@ namespace libaxolotl
 
             if (!sessionRecord.isFresh()) sessionRecord.archiveCurrentState();
 
-            RatchetingSession.initializeSession(sessionRecord.getSessionState(), message.getMessageVersion(), parameters.create());
+            RatchetingSession.initializeSession(sessionRecord.getSessionState(), parameters.create());
 
             sessionRecord.getSessionState().setLocalRegistrationId(identityKeyStore.GetLocalRegistrationId());
             sessionRecord.getSessionState().setRemoteRegistrationId(message.getRegistrationId());
@@ -171,57 +161,14 @@ namespace libaxolotl
             }
         }
 
-        private May<uint> processV2(SessionRecord sessionRecord, PreKeyWhisperMessage message)
-        {
-            if (!message.getPreKeyId().HasValue)
-            {
-                throw new InvalidKeyIdException("V2 message requires one time prekey id!");
-            }
-
-            if (!preKeyStore.ContainsPreKey(message.getPreKeyId().ForceGetValue()) &&
-                sessionStore.ContainsSession(remoteAddress))
-            {
-                //Log.w(TAG, "We've already processed the prekey part of this V2 session, letting bundled message fall through...");
-                return May<uint>.NoValue; //May.absent();
-            }
-
-            ECKeyPair ourPreKey = preKeyStore.LoadPreKey(message.getPreKeyId().ForceGetValue()).getKeyPair();
-
-            BobAxolotlParameters.Builder parameters = BobAxolotlParameters.newBuilder();
-
-            parameters.setOurIdentityKey(identityKeyStore.GetIdentityKeyPair())
-                          .setOurSignedPreKey(ourPreKey)
-                          .setOurRatchetKey(ourPreKey)
-                          .setOurOneTimePreKey(May<ECKeyPair>.NoValue) //absent
-                          .setTheirIdentityKey(message.getIdentityKey())
-                          .setTheirBaseKey(message.getBaseKey());
-
-            if (!sessionRecord.isFresh()) sessionRecord.archiveCurrentState();
-
-            RatchetingSession.initializeSession(sessionRecord.getSessionState(), message.getMessageVersion(), parameters.create());
-
-            sessionRecord.getSessionState().setLocalRegistrationId(identityKeyStore.GetLocalRegistrationId());
-            sessionRecord.getSessionState().setRemoteRegistrationId(message.getRegistrationId());
-            sessionRecord.getSessionState().setAliceBaseKey(message.getBaseKey().serialize());
-
-            if (message.getPreKeyId().ForceGetValue() != Medium.MAX_VALUE)
-            {
-                return message.getPreKeyId();
-            }
-            else
-            {
-                return May<uint>.NoValue; // May.absent();
-            }
-        }
-
         /**
-         * Build a new session from a {@link org.whispersystems.libaxolotl.state.PreKeyBundle} retrieved from
+         * Build a new session from a {@link org.whispersystems.libsignal.state.PreKeyBundle} retrieved from
          * a server.
          *
          * @param preKey A PreKey for the destination recipient, retrieved from a server.
-         * @throws InvalidKeyException when the {@link org.whispersystems.libaxolotl.state.PreKeyBundle} is
+         * @throws InvalidKeyException when the {@link org.whispersystems.libsignal.state.PreKeyBundle} is
          *                             badly formatted.
-         * @throws org.whispersystems.libaxolotl.UntrustedIdentityException when the sender's
+         * @throws org.whispersystems.libsignal.UntrustedIdentityException when the sender's
          *                                                                  {@link IdentityKey} is not
          *                                                                  trusted.
          */
@@ -242,34 +189,31 @@ namespace libaxolotl
                     throw new InvalidKeyException("Invalid signature on device key!");
                 }
 
-                if (preKey.getSignedPreKey() == null && preKey.getPreKey() == null)
+                if (preKey.getSignedPreKey() == null)
                 {
-                    throw new InvalidKeyException("Both signed and unsigned prekeys are absent!");
+                    throw new InvalidKeyException("No signed prekey!");
                 }
 
-                bool supportsV3 = preKey.getSignedPreKey() != null;
                 SessionRecord sessionRecord = sessionStore.LoadSession(remoteAddress);
                 ECKeyPair ourBaseKey = Curve.generateKeyPair();
-                ECPublicKey theirSignedPreKey = supportsV3 ? preKey.getSignedPreKey() : preKey.getPreKey();
-                ECPublicKey test = preKey.getPreKey(); // TODO: cleanup
+                ECPublicKey theirSignedPreKey = preKey.getSignedPreKey();
+                ECPublicKey test = preKey.getPreKey();
                 May<ECPublicKey> theirOneTimePreKey = (test == null) ? May<ECPublicKey>.NoValue : new May<ECPublicKey>(test);
                 May<uint> theirOneTimePreKeyId = theirOneTimePreKey.HasValue ? new May<uint>(preKey.getPreKeyId()) :
                                                                                               May<uint>.NoValue;
 
-                AliceAxolotlParameters.Builder parameters = AliceAxolotlParameters.newBuilder();
+                AliceSignalProtocolParameters.Builder parameters = AliceSignalProtocolParameters.newBuilder();
 
                 parameters.setOurBaseKey(ourBaseKey)
                               .setOurIdentityKey(identityKeyStore.GetIdentityKeyPair())
                               .setTheirIdentityKey(preKey.getIdentityKey())
                               .setTheirSignedPreKey(theirSignedPreKey)
                               .setTheirRatchetKey(theirSignedPreKey)
-                              .setTheirOneTimePreKey(supportsV3 ? theirOneTimePreKey : May<ECPublicKey>.NoValue);
+                              .setTheirOneTimePreKey(theirOneTimePreKey);
 
                 if (!sessionRecord.isFresh()) sessionRecord.archiveCurrentState();
 
-                RatchetingSession.initializeSession(sessionRecord.getSessionState(),
-                                                    supportsV3 ? (uint)3 : 2,
-                                                    parameters.create());
+                RatchetingSession.initializeSession(sessionRecord.getSessionState(), parameters.create());
 
                 sessionRecord.getSessionState().setUnacknowledgedPreKeyMessage(theirOneTimePreKeyId, preKey.getSignedPreKeyId(), ourBaseKey.getPublicKey());
                 sessionRecord.getSessionState().setLocalRegistrationId(identityKeyStore.GetLocalRegistrationId());
@@ -282,7 +226,7 @@ namespace libaxolotl
         }
 
         /**
-         * Build a new session from a {@link org.whispersystems.libaxolotl.protocol.KeyExchangeMessage}
+         * Build a new session from a {@link KeyExchangeMessage}
          * received from a remote client.
          *
          * @param message The received KeyExchangeMessage.
@@ -313,15 +257,14 @@ namespace libaxolotl
             uint flags = KeyExchangeMessage.RESPONSE_FLAG;
             SessionRecord sessionRecord = sessionStore.LoadSession(remoteAddress);
 
-            if (message.getVersion() >= 3 &&
-                !Curve.verifySignature(message.getIdentityKey().getPublicKey(),
+            if (!Curve.verifySignature(message.getIdentityKey().getPublicKey(),
                                        message.getBaseKey().serialize(),
                                        message.getBaseKeySignature()))
             {
                 throw new InvalidKeyException("Bad signature!");
             }
 
-            SymmetricAxolotlParameters.Builder builder = SymmetricAxolotlParameters.newBuilder();
+            SymmetricSignalProtocolParameters.Builder builder = SymmetricSignalProtocolParameters.newBuilder();
 
             if (!sessionRecord.getSessionState().hasPendingKeyExchange())
             {
@@ -341,12 +284,11 @@ namespace libaxolotl
                    .setTheirRatchetKey(message.getRatchetKey())
                    .setTheirIdentityKey(message.getIdentityKey());
 
-            SymmetricAxolotlParameters parameters = builder.create();
+            SymmetricSignalProtocolParameters parameters = builder.create();
 
             if (!sessionRecord.isFresh()) sessionRecord.archiveCurrentState();
 
             RatchetingSession.initializeSession(sessionRecord.getSessionState(),
-                                                Math.Min(message.getMaxVersion(), CiphertextMessage.CURRENT_VERSION),
                                                 parameters);
 
             sessionStore.StoreSession(remoteAddress, sessionRecord);
@@ -371,12 +313,12 @@ namespace libaxolotl
 
             if (!hasPendingKeyExchange || sessionState.getPendingKeyExchangeSequence() != message.getSequence())
             {
-                //Log.w(TAG, "No matching sequence for response. Is simultaneous initiate response: " + isSimultaneousInitiateResponse);
+                Debug.WriteLine("No matching sequence for response. Is simultaneous initiate response: " + isSimultaneousInitiateResponse);
                 if (!isSimultaneousInitiateResponse) throw new StaleKeyExchangeException();
                 else return;
             }
 
-            SymmetricAxolotlParameters.Builder parameters = SymmetricAxolotlParameters.newBuilder();
+            SymmetricSignalProtocolParameters.Builder parameters = SymmetricSignalProtocolParameters.newBuilder();
 
             parameters.setOurBaseKey(sessionRecord.getSessionState().getPendingKeyExchangeBaseKey())
                       .setOurRatchetKey(sessionRecord.getSessionState().getPendingKeyExchangeRatchetKey())
@@ -387,12 +329,9 @@ namespace libaxolotl
 
             if (!sessionRecord.isFresh()) sessionRecord.archiveCurrentState();
 
-            RatchetingSession.initializeSession(sessionRecord.getSessionState(),
-                                                Math.Min(message.getMaxVersion(), CiphertextMessage.CURRENT_VERSION),
-                                                parameters.create());
+            RatchetingSession.initializeSession(sessionRecord.getSessionState(), parameters.create());
 
-            if (sessionRecord.getSessionState().getSessionVersion() >= 3 &&
-                !Curve.verifySignature(message.getIdentityKey().getPublicKey(),
+            if (!Curve.verifySignature(message.getIdentityKey().getPublicKey(),
                                        message.getBaseKey().serialize(),
                                        message.getBaseKeySignature()))
             {
@@ -426,7 +365,7 @@ namespace libaxolotl
                     sessionRecord.getSessionState().setPendingKeyExchange(sequence, baseKey, ratchetKey, identityKey);
                     sessionStore.StoreSession(remoteAddress, sessionRecord);
 
-                    return new KeyExchangeMessage(2, sequence, flags, baseKey.getPublicKey(), baseKeySignature,
+                    return new KeyExchangeMessage(CiphertextMessage.CURRENT_VERSION, sequence, flags, baseKey.getPublicKey(), baseKeySignature,
                                                   ratchetKey.getPublicKey(), identityKey.getPublicKey());
                 }
                 catch (InvalidKeyException e)

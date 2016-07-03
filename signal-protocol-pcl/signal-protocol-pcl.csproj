@@ -34,7 +34,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="AxolotlAddress.cs" />
+    <Compile Include="SignalProtocolAddress.cs" />
     <Compile Include="DecryptionCallback.cs" />
     <Compile Include="DuplicateMessageException.cs" />
     <Compile Include="ecc\Curve.cs" />
@@ -47,6 +47,15 @@
     <Compile Include="ecc\impl\Curve25519ManagedProvider.cs" />
     <Compile Include="ecc\impl\ICurve25519Provider.cs" />
     <Compile Include="ecc\impl\Curve25519NativeProvider.cs" />
+    <Compile Include="fingerprint\DisplayableFingerprint.cs" />
+    <Compile Include="fingerprint\Fingerprint.cs" />
+    <Compile Include="fingerprint\FingerprintGenerator.cs" />
+    <Compile Include="fingerprint\FingerprintIdentifierMismatchException.cs" />
+    <Compile Include="fingerprint\FingerprintParsingException.cs" />
+    <Compile Include="fingerprint\FingerprintProtos.cs" />
+    <Compile Include="fingerprint\FingerprintVersionMismatchException.cs" />
+    <Compile Include="fingerprint\NumericFingerprintGenerator.cs" />
+    <Compile Include="fingerprint\ScannableFingerprint.cs" />
     <Compile Include="groups\GroupCipher.cs" />
     <Compile Include="groups\GroupSessionBuilder.cs" />
     <Compile Include="groups\ratchet\SenderChainKey.cs" />
@@ -72,24 +81,24 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="protocol\CiphertextMessage.cs" />
     <Compile Include="protocol\KeyExchangeMessage.cs" />
-    <Compile Include="protocol\PreKeyWhisperMessage.cs" />
+    <Compile Include="protocol\PreKeySignalMessage.cs" />
     <Compile Include="protocol\SenderKeyDistributionMessage.cs" />
     <Compile Include="protocol\SenderKeyMessage.cs" />
     <Compile Include="protocol\WhisperMessage.cs" />
     <Compile Include="protocol\WhisperProtos.cs" />
-    <Compile Include="ratchet\AliceAxolotlParameters.cs" />
-    <Compile Include="ratchet\BobAxolotlParameters.cs" />
+    <Compile Include="ratchet\AliceSignalProtocolParameters.cs" />
+    <Compile Include="ratchet\BobSignalProtocolParameters.cs" />
     <Compile Include="ratchet\ChainKey.cs" />
     <Compile Include="ratchet\MessageKeys.cs" />
     <Compile Include="ratchet\RatchetingSession.cs" />
     <Compile Include="ratchet\RootKey.cs" />
-    <Compile Include="ratchet\SymmetricAxolotlParameters.cs" />
+    <Compile Include="ratchet\SymmetricSignalProtocolParameters.cs" />
     <Compile Include="SessionBuilder.cs" />
     <Compile Include="SessionCipher.cs" />
     <Compile Include="StaleKeyExchangeException.cs" />
-    <Compile Include="state\AxolotlStore.cs" />
+    <Compile Include="state\SignalProtocolStore.cs" />
     <Compile Include="state\IdentityKeyStore.cs" />
-    <Compile Include="state\impl\InMemoryAxolotlStore.cs" />
+    <Compile Include="state\impl\InMemorySignalProtocolStore.cs" />
     <Compile Include="state\impl\InMemoryIdentityKeyStore.cs" />
     <Compile Include="state\impl\InMemoryPreKeyStore.cs" />
     <Compile Include="state\impl\InMemorySessionStore.cs" />
@@ -112,6 +121,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="protobuf\FingerprintProtocol.proto" />
     <None Include="protobuf\LocalStorageProtocol.proto" />
     <None Include="protobuf\Makefile.bat" />
     <None Include="protobuf\WhisperTextProtocol.proto" />

@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,10 @@
  */
 
 using Google.ProtocolBuffers;
-using libaxolotl;
-using libaxolotl.ecc;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static libaxolotl.state.StorageProtos;
+using libsignal.ecc;
+using static libsignal.state.StorageProtos;
 
-namespace libaxolotl
+namespace libsignal
 {
     /**
      * Holder for public and private identity key pair.

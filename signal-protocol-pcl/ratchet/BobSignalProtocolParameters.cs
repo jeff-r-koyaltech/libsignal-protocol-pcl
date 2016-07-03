@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using libaxolotl.ecc;
+using libsignal.ecc;
 using Strilanc.Value;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.ratchet
+namespace libsignal.ratchet
 {
-    public class BobAxolotlParameters
+    public class BobSignalProtocolParameters
     {
 
         private readonly IdentityKeyPair ourIdentityKey;
@@ -36,7 +32,7 @@ namespace libaxolotl.ratchet
         private readonly IdentityKey theirIdentityKey;
         private readonly ECPublicKey theirBaseKey;
 
-        BobAxolotlParameters(IdentityKeyPair ourIdentityKey, ECKeyPair ourSignedPreKey,
+        BobSignalProtocolParameters(IdentityKeyPair ourIdentityKey, ECKeyPair ourSignedPreKey,
                              ECKeyPair ourRatchetKey, May<ECKeyPair> ourOneTimePreKey,
                              IdentityKey theirIdentityKey, ECPublicKey theirBaseKey)
         {
@@ -135,9 +131,9 @@ namespace libaxolotl.ratchet
                 return this;
             }
 
-            public BobAxolotlParameters create()
+            public BobSignalProtocolParameters create()
             {
-                return new BobAxolotlParameters(ourIdentityKey, ourSignedPreKey, ourRatchetKey,
+                return new BobSignalProtocolParameters(ourIdentityKey, ourSignedPreKey, ourRatchetKey,
                                                 ourOneTimePreKey, theirIdentityKey, theirBaseKey);
             }
         }

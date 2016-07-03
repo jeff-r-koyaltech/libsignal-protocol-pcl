@@ -1,13 +1,30 @@
-﻿using libaxolotl.kdf;
-using libaxolotl.ratchet;
+﻿/** 
+ * Copyright (C) 2016 langboost
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using libsignal.kdf;
+using libsignal.ratchet;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace libaxolotl_test
+namespace libsignal_test
 {
     [TestClass]
     public class ChainKeyTest
     {
-        [TestMethod, TestCategory("libaxolotl.ratchet")]
+        [TestMethod, TestCategory("libsignal.ratchet")]
         public void testChainKeyDerivationV2()
         {
             byte[] seed =
@@ -60,13 +77,13 @@ namespace libaxolotl_test
             CollectionAssert.AreEqual(messageKey, chainKey.getMessageKeys().getCipherKey());
             CollectionAssert.AreEqual(macKey, chainKey.getMessageKeys().getMacKey());
             CollectionAssert.AreEqual(nextChainKey, chainKey.getNextChainKey().getKey());
-            Assert.AreEqual((uint)0, chainKey.getIndex());
-            Assert.AreEqual((uint)0, chainKey.getMessageKeys().getCounter());
-            Assert.AreEqual((uint)1, chainKey.getNextChainKey().getIndex());
-            Assert.AreEqual((uint)1, chainKey.getNextChainKey().getMessageKeys().getCounter());
+            Assert.AreEqual<uint>(0, chainKey.getIndex());
+            Assert.AreEqual<uint>(0, chainKey.getMessageKeys().getCounter());
+            Assert.AreEqual<uint>(1, chainKey.getNextChainKey().getIndex());
+            Assert.AreEqual<uint>(1, chainKey.getNextChainKey().getMessageKeys().getCounter());
         }
 
-        [TestMethod, TestCategory("libaxolotl.ratchet")]
+        [TestMethod, TestCategory("libsignal.ratchet")]
         public void testChainKeyDerivationV3()
         {
             byte[] seed =
@@ -116,14 +133,14 @@ namespace libaxolotl_test
 
             ChainKey chainKey = new ChainKey(HKDF.createFor(3), seed, 0);
 
-            Assert.AreEqual(seed, chainKey.getKey());
+            CollectionAssert.AreEqual(seed, chainKey.getKey());
             CollectionAssert.AreEqual(messageKey, chainKey.getMessageKeys().getCipherKey());
             CollectionAssert.AreEqual(macKey, chainKey.getMessageKeys().getMacKey());
             CollectionAssert.AreEqual(nextChainKey, chainKey.getNextChainKey().getKey());
-            Assert.AreEqual((uint)0, chainKey.getIndex());
-            Assert.AreEqual((uint)0, chainKey.getMessageKeys().getCounter());
-            Assert.AreEqual((uint)1, chainKey.getNextChainKey().getIndex());
-            Assert.AreEqual((uint)1, chainKey.getNextChainKey().getMessageKeys().getCounter());
+            Assert.AreEqual<uint>(0, chainKey.getIndex());
+            Assert.AreEqual<uint>(0, chainKey.getMessageKeys().getCounter());
+            Assert.AreEqual<uint>(1, chainKey.getNextChainKey().getIndex());
+            Assert.AreEqual<uint>(1, chainKey.getNextChainKey().getMessageKeys().getCounter());
         }
     }
 }

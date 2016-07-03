@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,21 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using libaxolotl.groups.state;
-using libaxolotl.protocol;
-using libaxolotl.util;
+using libsignal.groups.state;
+using libsignal.protocol;
+using libsignal.util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.groups
+namespace libsignal.groups
 {
     /**
      * GroupSessionBuilder is responsible for setting up group SenderKey encrypted sessions.
      *
-     * Once a session has been established, {@link org.whispersystems.libaxolotl.groups.GroupCipher}
+     * Once a session has been established, {@link org.whispersystems.libsignal.groups.GroupCipher}
      * can be used to encrypt/decrypt messages in that session.
      * <p>
      * The built sessions are unidirectional: they can be used either for sending or for receiving,
@@ -102,11 +98,7 @@ namespace libaxolotl.groups
                                                             state.getSigningKeyPublic());
 
                 }
-                catch (InvalidKeyIdException e)
-                {
-                    throw new Exception(e.Message);
-                }
-                catch (InvalidKeyException e)
+                catch (Exception e) when (e is InvalidKeyIdException || e is InvalidKeyException)
                 {
                     throw new Exception(e.Message);
                 }

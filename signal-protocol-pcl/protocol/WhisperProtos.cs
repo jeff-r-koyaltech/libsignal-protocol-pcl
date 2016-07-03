@@ -6,7 +6,7 @@ using pb = global::Google.ProtocolBuffers;
 using pbc = global::Google.ProtocolBuffers.Collections;
 using pbd = global::Google.ProtocolBuffers.Descriptors;
 using scg = global::System.Collections.Generic;
-namespace libaxolotl.protocol {
+namespace libsignal.protocol {
   
   [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
   public static partial class WhisperProtos {
@@ -16,16 +16,16 @@ namespace libaxolotl.protocol {
     }
     #endregion
     #region Static variables
-    private static pbd::MessageDescriptor internal__static_WhisperMessage__Descriptor;
-    private static pb::FieldAccess.FieldAccessorTable<global::libaxolotl.protocol.WhisperProtos.WhisperMessage, global::libaxolotl.protocol.WhisperProtos.WhisperMessage.Builder> internal__static_WhisperMessage__FieldAccessorTable;
-    private static pbd::MessageDescriptor internal__static_PreKeyWhisperMessage__Descriptor;
-    private static pb::FieldAccess.FieldAccessorTable<global::libaxolotl.protocol.WhisperProtos.PreKeyWhisperMessage, global::libaxolotl.protocol.WhisperProtos.PreKeyWhisperMessage.Builder> internal__static_PreKeyWhisperMessage__FieldAccessorTable;
+    private static pbd::MessageDescriptor internal__static_SignalMessage__Descriptor;
+    private static pb::FieldAccess.FieldAccessorTable<global::libsignal.protocol.WhisperProtos.SignalMessage, global::libsignal.protocol.WhisperProtos.SignalMessage.Builder> internal__static_SignalMessage__FieldAccessorTable;
+    private static pbd::MessageDescriptor internal__static_PreKeySignalMessage__Descriptor;
+    private static pb::FieldAccess.FieldAccessorTable<global::libsignal.protocol.WhisperProtos.PreKeySignalMessage, global::libsignal.protocol.WhisperProtos.PreKeySignalMessage.Builder> internal__static_PreKeySignalMessage__FieldAccessorTable;
     private static pbd::MessageDescriptor internal__static_KeyExchangeMessage__Descriptor;
-    private static pb::FieldAccess.FieldAccessorTable<global::libaxolotl.protocol.WhisperProtos.KeyExchangeMessage, global::libaxolotl.protocol.WhisperProtos.KeyExchangeMessage.Builder> internal__static_KeyExchangeMessage__FieldAccessorTable;
+    private static pb::FieldAccess.FieldAccessorTable<global::libsignal.protocol.WhisperProtos.KeyExchangeMessage, global::libsignal.protocol.WhisperProtos.KeyExchangeMessage.Builder> internal__static_KeyExchangeMessage__FieldAccessorTable;
     private static pbd::MessageDescriptor internal__static_SenderKeyMessage__Descriptor;
-    private static pb::FieldAccess.FieldAccessorTable<global::libaxolotl.protocol.WhisperProtos.SenderKeyMessage, global::libaxolotl.protocol.WhisperProtos.SenderKeyMessage.Builder> internal__static_SenderKeyMessage__FieldAccessorTable;
+    private static pb::FieldAccess.FieldAccessorTable<global::libsignal.protocol.WhisperProtos.SenderKeyMessage, global::libsignal.protocol.WhisperProtos.SenderKeyMessage.Builder> internal__static_SenderKeyMessage__FieldAccessorTable;
     private static pbd::MessageDescriptor internal__static_SenderKeyDistributionMessage__Descriptor;
-    private static pb::FieldAccess.FieldAccessorTable<global::libaxolotl.protocol.WhisperProtos.SenderKeyDistributionMessage, global::libaxolotl.protocol.WhisperProtos.SenderKeyDistributionMessage.Builder> internal__static_SenderKeyDistributionMessage__FieldAccessorTable;
+    private static pb::FieldAccess.FieldAccessorTable<global::libsignal.protocol.WhisperProtos.SenderKeyDistributionMessage, global::libsignal.protocol.WhisperProtos.SenderKeyDistributionMessage.Builder> internal__static_SenderKeyDistributionMessage__FieldAccessorTable;
     #endregion
     #region Descriptor
     public static pbd::FileDescriptor Descriptor {
@@ -51,25 +51,25 @@ namespace libaxolotl.protocol {
           "ASgMEhIKCnNpZ25pbmdLZXkYBCABKAw="));
       pbd::FileDescriptor.InternalDescriptorAssigner assigner = delegate(pbd::FileDescriptor root) {
         descriptor = root;
-        internal__static_WhisperMessage__Descriptor = Descriptor.MessageTypes[0];
-        internal__static_WhisperMessage__FieldAccessorTable = 
-            new pb::FieldAccess.FieldAccessorTable<global::libaxolotl.protocol.WhisperProtos.WhisperMessage, global::libaxolotl.protocol.WhisperProtos.WhisperMessage.Builder>(internal__static_WhisperMessage__Descriptor,
+        internal__static_SignalMessage__Descriptor = Descriptor.MessageTypes[0];
+        internal__static_SignalMessage__FieldAccessorTable = 
+            new pb::FieldAccess.FieldAccessorTable<global::libsignal.protocol.WhisperProtos.SignalMessage, global::libsignal.protocol.WhisperProtos.SignalMessage.Builder>(internal__static_SignalMessage__Descriptor,
                 new string[] { "RatchetKey", "Counter", "PreviousCounter", "Ciphertext", });
-        internal__static_PreKeyWhisperMessage__Descriptor = Descriptor.MessageTypes[1];
-        internal__static_PreKeyWhisperMessage__FieldAccessorTable = 
-            new pb::FieldAccess.FieldAccessorTable<global::libaxolotl.protocol.WhisperProtos.PreKeyWhisperMessage, global::libaxolotl.protocol.WhisperProtos.PreKeyWhisperMessage.Builder>(internal__static_PreKeyWhisperMessage__Descriptor,
+        internal__static_PreKeySignalMessage__Descriptor = Descriptor.MessageTypes[1];
+        internal__static_PreKeySignalMessage__FieldAccessorTable = 
+            new pb::FieldAccess.FieldAccessorTable<global::libsignal.protocol.WhisperProtos.PreKeySignalMessage, global::libsignal.protocol.WhisperProtos.PreKeySignalMessage.Builder>(internal__static_PreKeySignalMessage__Descriptor,
                 new string[] { "RegistrationId", "PreKeyId", "SignedPreKeyId", "BaseKey", "IdentityKey", "Message", });
         internal__static_KeyExchangeMessage__Descriptor = Descriptor.MessageTypes[2];
         internal__static_KeyExchangeMessage__FieldAccessorTable = 
-            new pb::FieldAccess.FieldAccessorTable<global::libaxolotl.protocol.WhisperProtos.KeyExchangeMessage, global::libaxolotl.protocol.WhisperProtos.KeyExchangeMessage.Builder>(internal__static_KeyExchangeMessage__Descriptor,
+            new pb::FieldAccess.FieldAccessorTable<global::libsignal.protocol.WhisperProtos.KeyExchangeMessage, global::libsignal.protocol.WhisperProtos.KeyExchangeMessage.Builder>(internal__static_KeyExchangeMessage__Descriptor,
                 new string[] { "Id", "BaseKey", "RatchetKey", "IdentityKey", "BaseKeySignature", });
         internal__static_SenderKeyMessage__Descriptor = Descriptor.MessageTypes[3];
         internal__static_SenderKeyMessage__FieldAccessorTable = 
-            new pb::FieldAccess.FieldAccessorTable<global::libaxolotl.protocol.WhisperProtos.SenderKeyMessage, global::libaxolotl.protocol.WhisperProtos.SenderKeyMessage.Builder>(internal__static_SenderKeyMessage__Descriptor,
+            new pb::FieldAccess.FieldAccessorTable<global::libsignal.protocol.WhisperProtos.SenderKeyMessage, global::libsignal.protocol.WhisperProtos.SenderKeyMessage.Builder>(internal__static_SenderKeyMessage__Descriptor,
                 new string[] { "Id", "Iteration", "Ciphertext", });
         internal__static_SenderKeyDistributionMessage__Descriptor = Descriptor.MessageTypes[4];
         internal__static_SenderKeyDistributionMessage__FieldAccessorTable = 
-            new pb::FieldAccess.FieldAccessorTable<global::libaxolotl.protocol.WhisperProtos.SenderKeyDistributionMessage, global::libaxolotl.protocol.WhisperProtos.SenderKeyDistributionMessage.Builder>(internal__static_SenderKeyDistributionMessage__Descriptor,
+            new pb::FieldAccess.FieldAccessorTable<global::libsignal.protocol.WhisperProtos.SenderKeyDistributionMessage, global::libsignal.protocol.WhisperProtos.SenderKeyDistributionMessage.Builder>(internal__static_SenderKeyDistributionMessage__Descriptor,
                 new string[] { "Id", "Iteration", "ChainKey", "SigningKey", });
         return null;
       };
@@ -81,29 +81,29 @@ namespace libaxolotl.protocol {
     
     #region Messages
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    public sealed partial class WhisperMessage : pb::GeneratedMessage<WhisperMessage, WhisperMessage.Builder> {
-      private WhisperMessage() { }
-      private static readonly WhisperMessage defaultInstance = new WhisperMessage().MakeReadOnly();
-      private static readonly string[] _whisperMessageFieldNames = new string[] { "ciphertext", "counter", "previousCounter", "ratchetKey" };
-      private static readonly uint[] _whisperMessageFieldTags = new uint[] { 34, 16, 24, 10 };
-      public static WhisperMessage DefaultInstance {
+    public sealed partial class SignalMessage : pb::GeneratedMessage<SignalMessage, SignalMessage.Builder> {
+      private SignalMessage() { }
+      private static readonly SignalMessage defaultInstance = new SignalMessage().MakeReadOnly();
+      private static readonly string[] _SignalMessageFieldNames = new string[] { "ciphertext", "counter", "previousCounter", "ratchetKey" };
+      private static readonly uint[] _SignalMessageFieldTags = new uint[] { 34, 16, 24, 10 };
+      public static SignalMessage DefaultInstance {
         get { return defaultInstance; }
       }
       
-      public override WhisperMessage DefaultInstanceForType {
+      public override SignalMessage DefaultInstanceForType {
         get { return DefaultInstance; }
       }
       
-      protected override WhisperMessage ThisMessage {
+      protected override SignalMessage ThisMessage {
         get { return this; }
       }
       
       public static pbd::MessageDescriptor Descriptor {
-        get { return global::libaxolotl.protocol.WhisperProtos.internal__static_WhisperMessage__Descriptor; }
+        get { return global::libsignal.protocol.WhisperProtos.internal__static_SignalMessage__Descriptor; }
       }
       
-      protected override pb::FieldAccess.FieldAccessorTable<WhisperMessage, WhisperMessage.Builder> InternalFieldAccessors {
-        get { return global::libaxolotl.protocol.WhisperProtos.internal__static_WhisperMessage__FieldAccessorTable; }
+      protected override pb::FieldAccess.FieldAccessorTable<SignalMessage, SignalMessage.Builder> InternalFieldAccessors {
+        get { return global::libsignal.protocol.WhisperProtos.internal__static_SignalMessage__FieldAccessorTable; }
       }
       
       public const int RatchetKeyFieldNumber = 1;
@@ -156,7 +156,7 @@ namespace libaxolotl.protocol {
       
       public override void WriteTo(pb::ICodedOutputStream output) {
         CalcSerializedSize();
-        string[] field_names = _whisperMessageFieldNames;
+        string[] field_names = _SignalMessageFieldNames;
         if (hasRatchetKey) {
           output.WriteBytes(1, field_names[3], RatchetKey);
         }
@@ -202,49 +202,49 @@ namespace libaxolotl.protocol {
         memoizedSerializedSize = size;
         return size;
       }
-      public static WhisperMessage ParseFrom(pb::ByteString data) {
+      public static SignalMessage ParseFrom(pb::ByteString data) {
         return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
       }
-      public static WhisperMessage ParseFrom(pb::ByteString data, pb::ExtensionRegistry extensionRegistry) {
+      public static SignalMessage ParseFrom(pb::ByteString data, pb::ExtensionRegistry extensionRegistry) {
         return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
       }
-      public static WhisperMessage ParseFrom(byte[] data) {
+      public static SignalMessage ParseFrom(byte[] data) {
         return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
       }
-      public static WhisperMessage ParseFrom(byte[] data, pb::ExtensionRegistry extensionRegistry) {
+      public static SignalMessage ParseFrom(byte[] data, pb::ExtensionRegistry extensionRegistry) {
         return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
       }
-      public static WhisperMessage ParseFrom(global::System.IO.Stream input) {
+      public static SignalMessage ParseFrom(global::System.IO.Stream input) {
         return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
       }
-      public static WhisperMessage ParseFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
+      public static SignalMessage ParseFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
         return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
       }
-      public static WhisperMessage ParseDelimitedFrom(global::System.IO.Stream input) {
+      public static SignalMessage ParseDelimitedFrom(global::System.IO.Stream input) {
         return CreateBuilder().MergeDelimitedFrom(input).BuildParsed();
       }
-      public static WhisperMessage ParseDelimitedFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
+      public static SignalMessage ParseDelimitedFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
         return CreateBuilder().MergeDelimitedFrom(input, extensionRegistry).BuildParsed();
       }
-      public static WhisperMessage ParseFrom(pb::ICodedInputStream input) {
+      public static SignalMessage ParseFrom(pb::ICodedInputStream input) {
         return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
       }
-      public static WhisperMessage ParseFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
+      public static SignalMessage ParseFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
         return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
       }
-      private WhisperMessage MakeReadOnly() {
+      private SignalMessage MakeReadOnly() {
         return this;
       }
       
       public static Builder CreateBuilder() { return new Builder(); }
       public override Builder ToBuilder() { return CreateBuilder(this); }
       public override Builder CreateBuilderForType() { return new Builder(); }
-      public static Builder CreateBuilder(WhisperMessage prototype) {
+      public static Builder CreateBuilder(SignalMessage prototype) {
         return new Builder(prototype);
       }
       
       [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-      public sealed partial class Builder : pb::GeneratedBuilder<WhisperMessage, Builder> {
+      public sealed partial class Builder : pb::GeneratedBuilder<SignalMessage, Builder> {
         protected override Builder ThisBuilder {
           get { return this; }
         }
@@ -252,18 +252,18 @@ namespace libaxolotl.protocol {
           result = DefaultInstance;
           resultIsReadOnly = true;
         }
-        internal Builder(WhisperMessage cloneFrom) {
+        internal Builder(SignalMessage cloneFrom) {
           result = cloneFrom;
           resultIsReadOnly = true;
         }
         
         private bool resultIsReadOnly;
-        private WhisperMessage result;
+        private SignalMessage result;
         
-        private WhisperMessage PrepareBuilder() {
+        private SignalMessage PrepareBuilder() {
           if (resultIsReadOnly) {
-            WhisperMessage original = result;
-            result = new WhisperMessage();
+            SignalMessage original = result;
+            result = new SignalMessage();
             resultIsReadOnly = false;
             MergeFrom(original);
           }
@@ -274,7 +274,7 @@ namespace libaxolotl.protocol {
           get { return result.IsInitialized; }
         }
         
-        protected override WhisperMessage MessageBeingBuilt {
+        protected override SignalMessage MessageBeingBuilt {
           get { return PrepareBuilder(); }
         }
         
@@ -293,14 +293,14 @@ namespace libaxolotl.protocol {
         }
         
         public override pbd::MessageDescriptor DescriptorForType {
-          get { return global::libaxolotl.protocol.WhisperProtos.WhisperMessage.Descriptor; }
+          get { return global::libsignal.protocol.WhisperProtos.SignalMessage.Descriptor; }
         }
         
-        public override WhisperMessage DefaultInstanceForType {
-          get { return global::libaxolotl.protocol.WhisperProtos.WhisperMessage.DefaultInstance; }
+        public override SignalMessage DefaultInstanceForType {
+          get { return global::libsignal.protocol.WhisperProtos.SignalMessage.DefaultInstance; }
         }
         
-        public override WhisperMessage BuildPartial() {
+        public override SignalMessage BuildPartial() {
           if (resultIsReadOnly) {
             return result;
           }
@@ -309,16 +309,16 @@ namespace libaxolotl.protocol {
         }
         
         public override Builder MergeFrom(pb::IMessage other) {
-          if (other is WhisperMessage) {
-            return MergeFrom((WhisperMessage) other);
+          if (other is SignalMessage) {
+            return MergeFrom((SignalMessage) other);
           } else {
             base.MergeFrom(other);
             return this;
           }
         }
         
-        public override Builder MergeFrom(WhisperMessage other) {
-          if (other == global::libaxolotl.protocol.WhisperProtos.WhisperMessage.DefaultInstance) return this;
+        public override Builder MergeFrom(SignalMessage other) {
+          if (other == global::libsignal.protocol.WhisperProtos.SignalMessage.DefaultInstance) return this;
           PrepareBuilder();
           if (other.HasRatchetKey) {
             RatchetKey = other.RatchetKey;
@@ -347,9 +347,9 @@ namespace libaxolotl.protocol {
           string field_name;
           while (input.ReadTag(out tag, out field_name)) {
             if(tag == 0 && field_name != null) {
-              int field_ordinal = global::System.Array.BinarySearch(_whisperMessageFieldNames, field_name, global::System.StringComparer.Ordinal);
+              int field_ordinal = global::System.Array.BinarySearch(_SignalMessageFieldNames, field_name, global::System.StringComparer.Ordinal);
               if(field_ordinal >= 0)
-                tag = _whisperMessageFieldTags[field_ordinal];
+                tag = _SignalMessageFieldTags[field_ordinal];
               else {
                 if (unknownFields == null) {
                   unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
@@ -487,35 +487,35 @@ namespace libaxolotl.protocol {
           return this;
         }
       }
-      static WhisperMessage() {
-        object.ReferenceEquals(global::libaxolotl.protocol.WhisperProtos.Descriptor, null);
+      static SignalMessage() {
+        object.ReferenceEquals(global::libsignal.protocol.WhisperProtos.Descriptor, null);
       }
     }
     
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-    public sealed partial class PreKeyWhisperMessage : pb::GeneratedMessage<PreKeyWhisperMessage, PreKeyWhisperMessage.Builder> {
-      private PreKeyWhisperMessage() { }
-      private static readonly PreKeyWhisperMessage defaultInstance = new PreKeyWhisperMessage().MakeReadOnly();
-      private static readonly string[] _preKeyWhisperMessageFieldNames = new string[] { "baseKey", "identityKey", "message", "preKeyId", "registrationId", "signedPreKeyId" };
-      private static readonly uint[] _preKeyWhisperMessageFieldTags = new uint[] { 18, 26, 34, 8, 40, 48 };
-      public static PreKeyWhisperMessage DefaultInstance {
+    public sealed partial class PreKeySignalMessage : pb::GeneratedMessage<PreKeySignalMessage, PreKeySignalMessage.Builder> {
+      private PreKeySignalMessage() { }
+      private static readonly PreKeySignalMessage defaultInstance = new PreKeySignalMessage().MakeReadOnly();
+      private static readonly string[] _preKeySignalMessageFieldNames = new string[] { "baseKey", "identityKey", "message", "preKeyId", "registrationId", "signedPreKeyId" };
+      private static readonly uint[] _preKeySignalMessageFieldTags = new uint[] { 18, 26, 34, 8, 40, 48 };
+      public static PreKeySignalMessage DefaultInstance {
         get { return defaultInstance; }
       }
       
-      public override PreKeyWhisperMessage DefaultInstanceForType {
+      public override PreKeySignalMessage DefaultInstanceForType {
         get { return DefaultInstance; }
       }
       
-      protected override PreKeyWhisperMessage ThisMessage {
+      protected override PreKeySignalMessage ThisMessage {
         get { return this; }
       }
       
       public static pbd::MessageDescriptor Descriptor {
-        get { return global::libaxolotl.protocol.WhisperProtos.internal__static_PreKeyWhisperMessage__Descriptor; }
+        get { return global::libsignal.protocol.WhisperProtos.internal__static_PreKeySignalMessage__Descriptor; }
       }
       
-      protected override pb::FieldAccess.FieldAccessorTable<PreKeyWhisperMessage, PreKeyWhisperMessage.Builder> InternalFieldAccessors {
-        get { return global::libaxolotl.protocol.WhisperProtos.internal__static_PreKeyWhisperMessage__FieldAccessorTable; }
+      protected override pb::FieldAccess.FieldAccessorTable<PreKeySignalMessage, PreKeySignalMessage.Builder> InternalFieldAccessors {
+        get { return global::libsignal.protocol.WhisperProtos.internal__static_PreKeySignalMessage__FieldAccessorTable; }
       }
       
       public const int RegistrationIdFieldNumber = 5;
@@ -589,7 +589,7 @@ namespace libaxolotl.protocol {
       
       public override void WriteTo(pb::ICodedOutputStream output) {
         CalcSerializedSize();
-        string[] field_names = _preKeyWhisperMessageFieldNames;
+        string[] field_names = _preKeySignalMessageFieldNames;
         if (hasPreKeyId) {
           output.WriteUInt32(1, field_names[3], PreKeyId);
         }
@@ -647,49 +647,49 @@ namespace libaxolotl.protocol {
         memoizedSerializedSize = size;
         return size;
       }
-      public static PreKeyWhisperMessage ParseFrom(pb::ByteString data) {
+      public static PreKeySignalMessage ParseFrom(pb::ByteString data) {
         return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
       }
-      public static PreKeyWhisperMessage ParseFrom(pb::ByteString data, pb::ExtensionRegistry extensionRegistry) {
+      public static PreKeySignalMessage ParseFrom(pb::ByteString data, pb::ExtensionRegistry extensionRegistry) {
         return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
       }
-      public static PreKeyWhisperMessage ParseFrom(byte[] data) {
+      public static PreKeySignalMessage ParseFrom(byte[] data) {
         return ((Builder) CreateBuilder().MergeFrom(data)).BuildParsed();
       }
-      public static PreKeyWhisperMessage ParseFrom(byte[] data, pb::ExtensionRegistry extensionRegistry) {
+      public static PreKeySignalMessage ParseFrom(byte[] data, pb::ExtensionRegistry extensionRegistry) {
         return ((Builder) CreateBuilder().MergeFrom(data, extensionRegistry)).BuildParsed();
       }
-      public static PreKeyWhisperMessage ParseFrom(global::System.IO.Stream input) {
+      public static PreKeySignalMessage ParseFrom(global::System.IO.Stream input) {
         return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
       }
-      public static PreKeyWhisperMessage ParseFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
+      public static PreKeySignalMessage ParseFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
         return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
       }
-      public static PreKeyWhisperMessage ParseDelimitedFrom(global::System.IO.Stream input) {
+      public static PreKeySignalMessage ParseDelimitedFrom(global::System.IO.Stream input) {
         return CreateBuilder().MergeDelimitedFrom(input).BuildParsed();
       }
-      public static PreKeyWhisperMessage ParseDelimitedFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
+      public static PreKeySignalMessage ParseDelimitedFrom(global::System.IO.Stream input, pb::ExtensionRegistry extensionRegistry) {
         return CreateBuilder().MergeDelimitedFrom(input, extensionRegistry).BuildParsed();
       }
-      public static PreKeyWhisperMessage ParseFrom(pb::ICodedInputStream input) {
+      public static PreKeySignalMessage ParseFrom(pb::ICodedInputStream input) {
         return ((Builder) CreateBuilder().MergeFrom(input)).BuildParsed();
       }
-      public static PreKeyWhisperMessage ParseFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
+      public static PreKeySignalMessage ParseFrom(pb::ICodedInputStream input, pb::ExtensionRegistry extensionRegistry) {
         return ((Builder) CreateBuilder().MergeFrom(input, extensionRegistry)).BuildParsed();
       }
-      private PreKeyWhisperMessage MakeReadOnly() {
+      private PreKeySignalMessage MakeReadOnly() {
         return this;
       }
       
       public static Builder CreateBuilder() { return new Builder(); }
       public override Builder ToBuilder() { return CreateBuilder(this); }
       public override Builder CreateBuilderForType() { return new Builder(); }
-      public static Builder CreateBuilder(PreKeyWhisperMessage prototype) {
+      public static Builder CreateBuilder(PreKeySignalMessage prototype) {
         return new Builder(prototype);
       }
       
       [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-      public sealed partial class Builder : pb::GeneratedBuilder<PreKeyWhisperMessage, Builder> {
+      public sealed partial class Builder : pb::GeneratedBuilder<PreKeySignalMessage, Builder> {
         protected override Builder ThisBuilder {
           get { return this; }
         }
@@ -697,18 +697,18 @@ namespace libaxolotl.protocol {
           result = DefaultInstance;
           resultIsReadOnly = true;
         }
-        internal Builder(PreKeyWhisperMessage cloneFrom) {
+        internal Builder(PreKeySignalMessage cloneFrom) {
           result = cloneFrom;
           resultIsReadOnly = true;
         }
         
         private bool resultIsReadOnly;
-        private PreKeyWhisperMessage result;
+        private PreKeySignalMessage result;
         
-        private PreKeyWhisperMessage PrepareBuilder() {
+        private PreKeySignalMessage PrepareBuilder() {
           if (resultIsReadOnly) {
-            PreKeyWhisperMessage original = result;
-            result = new PreKeyWhisperMessage();
+            PreKeySignalMessage original = result;
+            result = new PreKeySignalMessage();
             resultIsReadOnly = false;
             MergeFrom(original);
           }
@@ -719,7 +719,7 @@ namespace libaxolotl.protocol {
           get { return result.IsInitialized; }
         }
         
-        protected override PreKeyWhisperMessage MessageBeingBuilt {
+        protected override PreKeySignalMessage MessageBeingBuilt {
           get { return PrepareBuilder(); }
         }
         
@@ -738,14 +738,14 @@ namespace libaxolotl.protocol {
         }
         
         public override pbd::MessageDescriptor DescriptorForType {
-          get { return global::libaxolotl.protocol.WhisperProtos.PreKeyWhisperMessage.Descriptor; }
+          get { return global::libsignal.protocol.WhisperProtos.PreKeySignalMessage.Descriptor; }
         }
         
-        public override PreKeyWhisperMessage DefaultInstanceForType {
-          get { return global::libaxolotl.protocol.WhisperProtos.PreKeyWhisperMessage.DefaultInstance; }
+        public override PreKeySignalMessage DefaultInstanceForType {
+          get { return global::libsignal.protocol.WhisperProtos.PreKeySignalMessage.DefaultInstance; }
         }
         
-        public override PreKeyWhisperMessage BuildPartial() {
+        public override PreKeySignalMessage BuildPartial() {
           if (resultIsReadOnly) {
             return result;
           }
@@ -754,16 +754,16 @@ namespace libaxolotl.protocol {
         }
         
         public override Builder MergeFrom(pb::IMessage other) {
-          if (other is PreKeyWhisperMessage) {
-            return MergeFrom((PreKeyWhisperMessage) other);
+          if (other is PreKeySignalMessage) {
+            return MergeFrom((PreKeySignalMessage) other);
           } else {
             base.MergeFrom(other);
             return this;
           }
         }
         
-        public override Builder MergeFrom(PreKeyWhisperMessage other) {
-          if (other == global::libaxolotl.protocol.WhisperProtos.PreKeyWhisperMessage.DefaultInstance) return this;
+        public override Builder MergeFrom(PreKeySignalMessage other) {
+          if (other == global::libsignal.protocol.WhisperProtos.PreKeySignalMessage.DefaultInstance) return this;
           PrepareBuilder();
           if (other.HasRegistrationId) {
             RegistrationId = other.RegistrationId;
@@ -798,9 +798,9 @@ namespace libaxolotl.protocol {
           string field_name;
           while (input.ReadTag(out tag, out field_name)) {
             if(tag == 0 && field_name != null) {
-              int field_ordinal = global::System.Array.BinarySearch(_preKeyWhisperMessageFieldNames, field_name, global::System.StringComparer.Ordinal);
+              int field_ordinal = global::System.Array.BinarySearch(_preKeySignalMessageFieldNames, field_name, global::System.StringComparer.Ordinal);
               if(field_ordinal >= 0)
-                tag = _preKeyWhisperMessageFieldTags[field_ordinal];
+                tag = _preKeySignalMessageFieldTags[field_ordinal];
               else {
                 if (unknownFields == null) {
                   unknownFields = pb::UnknownFieldSet.CreateBuilder(this.UnknownFields);
@@ -989,8 +989,8 @@ namespace libaxolotl.protocol {
           return this;
         }
       }
-      static PreKeyWhisperMessage() {
-        object.ReferenceEquals(global::libaxolotl.protocol.WhisperProtos.Descriptor, null);
+      static PreKeySignalMessage() {
+        object.ReferenceEquals(global::libsignal.protocol.WhisperProtos.Descriptor, null);
       }
     }
     
@@ -1013,11 +1013,11 @@ namespace libaxolotl.protocol {
       }
       
       public static pbd::MessageDescriptor Descriptor {
-        get { return global::libaxolotl.protocol.WhisperProtos.internal__static_KeyExchangeMessage__Descriptor; }
+        get { return global::libsignal.protocol.WhisperProtos.internal__static_KeyExchangeMessage__Descriptor; }
       }
       
       protected override pb::FieldAccess.FieldAccessorTable<KeyExchangeMessage, KeyExchangeMessage.Builder> InternalFieldAccessors {
-        get { return global::libaxolotl.protocol.WhisperProtos.internal__static_KeyExchangeMessage__FieldAccessorTable; }
+        get { return global::libsignal.protocol.WhisperProtos.internal__static_KeyExchangeMessage__FieldAccessorTable; }
       }
       
       public const int IdFieldNumber = 1;
@@ -1222,11 +1222,11 @@ namespace libaxolotl.protocol {
         }
         
         public override pbd::MessageDescriptor DescriptorForType {
-          get { return global::libaxolotl.protocol.WhisperProtos.KeyExchangeMessage.Descriptor; }
+          get { return global::libsignal.protocol.WhisperProtos.KeyExchangeMessage.Descriptor; }
         }
         
         public override KeyExchangeMessage DefaultInstanceForType {
-          get { return global::libaxolotl.protocol.WhisperProtos.KeyExchangeMessage.DefaultInstance; }
+          get { return global::libsignal.protocol.WhisperProtos.KeyExchangeMessage.DefaultInstance; }
         }
         
         public override KeyExchangeMessage BuildPartial() {
@@ -1247,7 +1247,7 @@ namespace libaxolotl.protocol {
         }
         
         public override Builder MergeFrom(KeyExchangeMessage other) {
-          if (other == global::libaxolotl.protocol.WhisperProtos.KeyExchangeMessage.DefaultInstance) return this;
+          if (other == global::libsignal.protocol.WhisperProtos.KeyExchangeMessage.DefaultInstance) return this;
           PrepareBuilder();
           if (other.HasId) {
             Id = other.Id;
@@ -1444,7 +1444,7 @@ namespace libaxolotl.protocol {
         }
       }
       static KeyExchangeMessage() {
-        object.ReferenceEquals(global::libaxolotl.protocol.WhisperProtos.Descriptor, null);
+        object.ReferenceEquals(global::libsignal.protocol.WhisperProtos.Descriptor, null);
       }
     }
     
@@ -1467,11 +1467,11 @@ namespace libaxolotl.protocol {
       }
       
       public static pbd::MessageDescriptor Descriptor {
-        get { return global::libaxolotl.protocol.WhisperProtos.internal__static_SenderKeyMessage__Descriptor; }
+        get { return global::libsignal.protocol.WhisperProtos.internal__static_SenderKeyMessage__Descriptor; }
       }
       
       protected override pb::FieldAccess.FieldAccessorTable<SenderKeyMessage, SenderKeyMessage.Builder> InternalFieldAccessors {
-        get { return global::libaxolotl.protocol.WhisperProtos.internal__static_SenderKeyMessage__FieldAccessorTable; }
+        get { return global::libsignal.protocol.WhisperProtos.internal__static_SenderKeyMessage__FieldAccessorTable; }
       }
       
       public const int IdFieldNumber = 1;
@@ -1645,11 +1645,11 @@ namespace libaxolotl.protocol {
         }
         
         public override pbd::MessageDescriptor DescriptorForType {
-          get { return global::libaxolotl.protocol.WhisperProtos.SenderKeyMessage.Descriptor; }
+          get { return global::libsignal.protocol.WhisperProtos.SenderKeyMessage.Descriptor; }
         }
         
         public override SenderKeyMessage DefaultInstanceForType {
-          get { return global::libaxolotl.protocol.WhisperProtos.SenderKeyMessage.DefaultInstance; }
+          get { return global::libsignal.protocol.WhisperProtos.SenderKeyMessage.DefaultInstance; }
         }
         
         public override SenderKeyMessage BuildPartial() {
@@ -1670,7 +1670,7 @@ namespace libaxolotl.protocol {
         }
         
         public override Builder MergeFrom(SenderKeyMessage other) {
-          if (other == global::libaxolotl.protocol.WhisperProtos.SenderKeyMessage.DefaultInstance) return this;
+          if (other == global::libsignal.protocol.WhisperProtos.SenderKeyMessage.DefaultInstance) return this;
           PrepareBuilder();
           if (other.HasId) {
             Id = other.Id;
@@ -1812,7 +1812,7 @@ namespace libaxolotl.protocol {
         }
       }
       static SenderKeyMessage() {
-        object.ReferenceEquals(global::libaxolotl.protocol.WhisperProtos.Descriptor, null);
+        object.ReferenceEquals(global::libsignal.protocol.WhisperProtos.Descriptor, null);
       }
     }
     
@@ -1835,11 +1835,11 @@ namespace libaxolotl.protocol {
       }
       
       public static pbd::MessageDescriptor Descriptor {
-        get { return global::libaxolotl.protocol.WhisperProtos.internal__static_SenderKeyDistributionMessage__Descriptor; }
+        get { return global::libsignal.protocol.WhisperProtos.internal__static_SenderKeyDistributionMessage__Descriptor; }
       }
       
       protected override pb::FieldAccess.FieldAccessorTable<SenderKeyDistributionMessage, SenderKeyDistributionMessage.Builder> InternalFieldAccessors {
-        get { return global::libaxolotl.protocol.WhisperProtos.internal__static_SenderKeyDistributionMessage__FieldAccessorTable; }
+        get { return global::libsignal.protocol.WhisperProtos.internal__static_SenderKeyDistributionMessage__FieldAccessorTable; }
       }
       
       public const int IdFieldNumber = 1;
@@ -2029,11 +2029,11 @@ namespace libaxolotl.protocol {
         }
         
         public override pbd::MessageDescriptor DescriptorForType {
-          get { return global::libaxolotl.protocol.WhisperProtos.SenderKeyDistributionMessage.Descriptor; }
+          get { return global::libsignal.protocol.WhisperProtos.SenderKeyDistributionMessage.Descriptor; }
         }
         
         public override SenderKeyDistributionMessage DefaultInstanceForType {
-          get { return global::libaxolotl.protocol.WhisperProtos.SenderKeyDistributionMessage.DefaultInstance; }
+          get { return global::libsignal.protocol.WhisperProtos.SenderKeyDistributionMessage.DefaultInstance; }
         }
         
         public override SenderKeyDistributionMessage BuildPartial() {
@@ -2054,7 +2054,7 @@ namespace libaxolotl.protocol {
         }
         
         public override Builder MergeFrom(SenderKeyDistributionMessage other) {
-          if (other == global::libaxolotl.protocol.WhisperProtos.SenderKeyDistributionMessage.DefaultInstance) return this;
+          if (other == global::libsignal.protocol.WhisperProtos.SenderKeyDistributionMessage.DefaultInstance) return this;
           PrepareBuilder();
           if (other.HasId) {
             Id = other.Id;
@@ -2224,7 +2224,7 @@ namespace libaxolotl.protocol {
         }
       }
       static SenderKeyDistributionMessage() {
-        object.ReferenceEquals(global::libaxolotl.protocol.WhisperProtos.Descriptor, null);
+        object.ReferenceEquals(global::libsignal.protocol.WhisperProtos.Descriptor, null);
       }
     }
     

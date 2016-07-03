@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost, langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,7 +18,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace libaxolotl.state.impl
+namespace libsignal.state.impl
 {
 	/// <summary>
 	/// In-memory / testing implementation of IdentityKeyStore

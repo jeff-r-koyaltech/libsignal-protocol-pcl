@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using libaxolotl.ecc;
-using libaxolotl.state;
+using libsignal.ecc;
+using libsignal.state;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PCLCrypto;
 using static PCLCrypto.WinRTCrypto;
 
-namespace libaxolotl.util
+namespace libsignal.util
 {
     /**
      * Helper class for generating keys of different types.

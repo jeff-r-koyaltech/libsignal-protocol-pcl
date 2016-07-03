@@ -1,117 +1,126 @@
-﻿using libaxolotl;
-using libaxolotl.ecc;
-using libaxolotl.ratchet;
-using libaxolotl.state;
+﻿/** 
+ * Copyright (C) 2016 langboost
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using libsignal;
+using libsignal.ecc;
+using libsignal.ratchet;
+using libsignal.state;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Strilanc.Value;
 
-namespace libaxolotl_test
+namespace libsignal_test
 {
     [TestClass]
     public class RatchetingSessionTest
     {
-        [TestMethod, TestCategory("libaxolotl.ratchet")]
+        [TestMethod, TestCategory("libsignal.ratchet")]
         public void testRatchetingSessionAsBob()
         {
-            byte[] bobPublic =
-            {
-                0x05, 0x2c, 0xb4, 0x97,
-                0x76, 0xb8, 0x77, 0x02,
-                0x05, 0x74, 0x5a, 0x3a,
-                0x6e, 0x24, 0xf5, 0x79,
-                0xcd, 0xb4, 0xba, 0x7a,
-                0x89, 0x04, 0x10, 0x05,
-                0x92, 0x8e, 0xbb, 0xad,
-                0xc9, 0xc0, 0x5a, 0xd4,
-                0x58
-            };
+            byte[] bobPublic = {(byte) 0x05, (byte) 0x2c, (byte) 0xb4, (byte) 0x97,
+                        (byte) 0x76, (byte) 0xb8, (byte) 0x77, (byte) 0x02,
+                        (byte) 0x05, (byte) 0x74, (byte) 0x5a, (byte) 0x3a,
+                        (byte) 0x6e, (byte) 0x24, (byte) 0xf5, (byte) 0x79,
+                        (byte) 0xcd, (byte) 0xb4, (byte) 0xba, (byte) 0x7a,
+                        (byte) 0x89, (byte) 0x04, (byte) 0x10, (byte) 0x05,
+                        (byte) 0x92, (byte) 0x8e, (byte) 0xbb, (byte) 0xad,
+                        (byte) 0xc9, (byte) 0xc0, (byte) 0x5a, (byte) 0xd4,
+                        (byte) 0x58};
 
-            byte[] bobPrivate =
-            {
-                0xa1, 0xca, 0xb4, 0x8f,
-                0x7c, 0x89, 0x3f, 0xaf,
-                0xa9, 0x88, 0x0a, 0x28,
-                0xc3, 0xb4, 0x99, 0x9d,
-                0x28, 0xd6, 0x32, 0x95,
-                0x62, 0xd2, 0x7a, 0x4e,
-                0xa4, 0xe2, 0x2e, 0x9f,
-                0xf1, 0xbd, 0xd6, 0x5a
-            };
+            byte[] bobPrivate = {(byte) 0xa1, (byte) 0xca, (byte) 0xb4, (byte) 0x8f,
+                        (byte) 0x7c, (byte) 0x89, (byte) 0x3f, (byte) 0xaf,
+                        (byte) 0xa9, (byte) 0x88, (byte) 0x0a, (byte) 0x28,
+                        (byte) 0xc3, (byte) 0xb4, (byte) 0x99, (byte) 0x9d,
+                        (byte) 0x28, (byte) 0xd6, (byte) 0x32, (byte) 0x95,
+                        (byte) 0x62, (byte) 0xd2, (byte) 0x7a, (byte) 0x4e,
+                        (byte) 0xa4, (byte) 0xe2, (byte) 0x2e, (byte) 0x9f,
+                        (byte) 0xf1, (byte) 0xbd, (byte) 0xd6, (byte) 0x5a};
 
-            byte[] bobIdentityPublic =
-            {
-                0x05, 0xf1, 0xf4, 0x38,
-                0x74, 0xf6, 0x96, 0x69,
-                0x56, 0xc2, 0xdd, 0x47,
-                0x3f, 0x8f, 0xa1, 0x5a,
-                0xde, 0xb7, 0x1d, 0x1c,
-                0xb9, 0x91, 0xb2, 0x34,
-                0x16, 0x92, 0x32, 0x4c,
-                0xef, 0xb1, 0xc5, 0xe6,
-                0x26
-            };
+            byte[] bobIdentityPublic = {(byte) 0x05, (byte) 0xf1, (byte) 0xf4, (byte) 0x38,
+                        (byte) 0x74, (byte) 0xf6, (byte) 0x96, (byte) 0x69,
+                        (byte) 0x56, (byte) 0xc2, (byte) 0xdd, (byte) 0x47,
+                        (byte) 0x3f, (byte) 0x8f, (byte) 0xa1, (byte) 0x5a,
+                        (byte) 0xde, (byte) 0xb7, (byte) 0x1d, (byte) 0x1c,
+                        (byte) 0xb9, (byte) 0x91, (byte) 0xb2, (byte) 0x34,
+                        (byte) 0x16, (byte) 0x92, (byte) 0x32, (byte) 0x4c,
+                        (byte) 0xef, (byte) 0xb1, (byte) 0xc5, (byte) 0xe6,
+                        (byte) 0x26};
 
-            byte[] bobIdentityPrivate =
-            {
-                0x48, 0x75, 0xcc, 0x69,
-                0xdd, 0xf8, 0xea, 0x07,
-                0x19, 0xec, 0x94, 0x7d,
-                0x61, 0x08, 0x11, 0x35,
-                0x86, 0x8d, 0x5f, 0xd8,
-                0x01, 0xf0, 0x2c, 0x02,
-                0x25, 0xe5, 0x16, 0xdf,
-                0x21, 0x56, 0x60, 0x5e
-            };
+            byte[] bobIdentityPrivate = {(byte) 0x48, (byte) 0x75, (byte) 0xcc, (byte) 0x69,
+                        (byte) 0xdd, (byte) 0xf8, (byte) 0xea, (byte) 0x07,
+                        (byte) 0x19, (byte) 0xec, (byte) 0x94, (byte) 0x7d,
+                        (byte) 0x61, (byte) 0x08, (byte) 0x11, (byte) 0x35,
+                        (byte) 0x86, (byte) 0x8d, (byte) 0x5f, (byte) 0xd8,
+                        (byte) 0x01, (byte) 0xf0, (byte) 0x2c, (byte) 0x02,
+                        (byte) 0x25, (byte) 0xe5, (byte) 0x16, (byte) 0xdf,
+                        (byte) 0x21, (byte) 0x56, (byte) 0x60, (byte) 0x5e};
 
-            byte[] aliceBasePublic =
-            {
-                0x05, 0x47, 0x2d, 0x1f,
-                0xb1, 0xa9, 0x86, 0x2c,
-                0x3a, 0xf6, 0xbe, 0xac,
-                0xa8, 0x92, 0x02, 0x77,
-                0xe2, 0xb2, 0x6f, 0x4a,
-                0x79, 0x21, 0x3e, 0xc7,
-                0xc9, 0x06, 0xae, 0xb3,
-                0x5e, 0x03, 0xcf, 0x89,
-                0x50
-            };
+            byte[] aliceBasePublic = {(byte) 0x05, (byte) 0x47, (byte) 0x2d, (byte) 0x1f,
+                        (byte) 0xb1, (byte) 0xa9, (byte) 0x86, (byte) 0x2c,
+                        (byte) 0x3a, (byte) 0xf6, (byte) 0xbe, (byte) 0xac,
+                        (byte) 0xa8, (byte) 0x92, (byte) 0x02, (byte) 0x77,
+                        (byte) 0xe2, (byte) 0xb2, (byte) 0x6f, (byte) 0x4a,
+                        (byte) 0x79, (byte) 0x21, (byte) 0x3e, (byte) 0xc7,
+                        (byte) 0xc9, (byte) 0x06, (byte) 0xae, (byte) 0xb3,
+                        (byte) 0x5e, (byte) 0x03, (byte) 0xcf, (byte) 0x89,
+                        (byte) 0x50};
 
-            byte[] aliceEphemeralPublic =
-            {
-                0x05, 0x6c, 0x3e, 0x0d,
-                0x1f, 0x52, 0x02, 0x83,
-                0xef, 0xcc, 0x55, 0xfc,
-                0xa5, 0xe6, 0x70, 0x75,
-                0xb9, 0x04, 0x00, 0x7f,
-                0x18, 0x81, 0xd1, 0x51,
-                0xaf, 0x76, 0xdf, 0x18,
-                0xc5, 0x1d, 0x29, 0xd3,
-                0x4b
-            };
+            byte[] aliceEphemeralPublic = {(byte) 0x05, (byte) 0x6c, (byte) 0x3e, (byte) 0x0d,
+                        (byte) 0x1f, (byte) 0x52, (byte) 0x02, (byte) 0x83,
+                        (byte) 0xef, (byte) 0xcc, (byte) 0x55, (byte) 0xfc,
+                        (byte) 0xa5, (byte) 0xe6, (byte) 0x70, (byte) 0x75,
+                        (byte) 0xb9, (byte) 0x04, (byte) 0x00, (byte) 0x7f,
+                        (byte) 0x18, (byte) 0x81, (byte) 0xd1, (byte) 0x51,
+                        (byte) 0xaf, (byte) 0x76, (byte) 0xdf, (byte) 0x18,
+                        (byte) 0xc5, (byte) 0x1d, (byte) 0x29, (byte) 0xd3,
+                        (byte) 0x4b};
 
-            byte[] aliceIdentityPublic =
-            {
-                0x05, 0xb4, 0xa8, 0x45,
-                0x56, 0x60, 0xad, 0xa6,
-                0x5b, 0x40, 0x10, 0x07,
-                0xf6, 0x15, 0xe6, 0x54,
-                0x04, 0x17, 0x46, 0x43,
-                0x2e, 0x33, 0x39, 0xc6,
-                0x87, 0x51, 0x49, 0xbc,
-                0xee, 0xfc, 0xb4, 0x2b,
-                0x4a
-            };
+            byte[] aliceIdentityPublic = {(byte) 0x05, (byte) 0xb4, (byte) 0xa8, (byte) 0x45,
+                        (byte) 0x56, (byte) 0x60, (byte) 0xad, (byte) 0xa6,
+                        (byte) 0x5b, (byte) 0x40, (byte) 0x10, (byte) 0x07,
+                        (byte) 0xf6, (byte) 0x15, (byte) 0xe6, (byte) 0x54,
+                        (byte) 0x04, (byte) 0x17, (byte) 0x46, (byte) 0x43,
+                        (byte) 0x2e, (byte) 0x33, (byte) 0x39, (byte) 0xc6,
+                        (byte) 0x87, (byte) 0x51, (byte) 0x49, (byte) 0xbc,
+                        (byte) 0xee, (byte) 0xfc, (byte) 0xb4, (byte) 0x2b,
+                        (byte) 0x4a};
 
-            byte[] senderChain =
-            {
-                0xd2, 0x2f, 0xd5, 0x6d, 0x3f,
-                0xec, 0x81, 0x9c, 0xf4, 0xc3,
-                0xd5, 0x0c, 0x56, 0xed, 0xfb,
-                0x1c, 0x28, 0x0a, 0x1b, 0x31,
-                0x96, 0x45, 0x37, 0xf1, 0xd1,
-                0x61, 0xe1, 0xc9, 0x31, 0x48,
-                0xe3, 0x6b
-            };
+            byte[] bobSignedPreKeyPublic =  {(byte)0x05, (byte)0xac, (byte)0x24, (byte)0x8a, (byte)0x8f,
+                        (byte)0x26, (byte)0x3b, (byte)0xe6, (byte)0x86, (byte)0x35,
+                        (byte)0x76, (byte)0xeb, (byte)0x03, (byte)0x62, (byte)0xe2,
+                        (byte)0x8c, (byte)0x82, (byte)0x8f, (byte)0x01, (byte)0x07,
+                        (byte)0xa3, (byte)0x37, (byte)0x9d, (byte)0x34, (byte)0xba,
+                        (byte)0xb1, (byte)0x58, (byte)0x6b, (byte)0xf8, (byte)0xc7,
+                        (byte)0x70, (byte)0xcd, (byte)0x67};
+
+            byte[] bobSignedPreKeyPrivate = {(byte)0x58, (byte)0x39, (byte)0x00, (byte)0x13, (byte)0x1f,
+                        (byte)0xb7, (byte)0x27, (byte)0x99, (byte)0x8b, (byte)0x78,
+                        (byte)0x03, (byte)0xfe, (byte)0x6a, (byte)0xc2, (byte)0x2c,
+                        (byte)0xc5, (byte)0x91, (byte)0xf3, (byte)0x42, (byte)0xe4,
+                        (byte)0xe4, (byte)0x2a, (byte)0x8c, (byte)0x8d, (byte)0x5d,
+                        (byte)0x78, (byte)0x19, (byte)0x42, (byte)0x09, (byte)0xb8,
+                        (byte)0xd2, (byte)0x53};
+
+            byte[] senderChain = {(byte)0x97, (byte)0x97, (byte)0xca, (byte)0xca, (byte)0x53,
+                        (byte)0xc9, (byte)0x89, (byte)0xbb, (byte)0xe2, (byte)0x29,
+                        (byte)0xa4, (byte)0x0c, (byte)0xa7, (byte)0x72, (byte)0x70,
+                        (byte)0x10, (byte)0xeb, (byte)0x26, (byte)0x04, (byte)0xfc,
+                        (byte)0x14, (byte)0x94, (byte)0x5d, (byte)0x77, (byte)0x95,
+                        (byte)0x8a, (byte)0x0a, (byte)0xed, (byte)0xa0, (byte)0x88,
+                        (byte)0xb4, (byte)0x4d};
 
             IdentityKey bobIdentityKeyPublic = new IdentityKey(bobIdentityPublic, 0);
             ECPrivateKey bobIdentityKeyPrivate = Curve.decodePrivatePoint(bobIdentityPrivate);
@@ -120,134 +129,116 @@ namespace libaxolotl_test
             ECPrivateKey bobEphemeralPrivateKey = Curve.decodePrivatePoint(bobPrivate);
             ECKeyPair bobEphemeralKey = new ECKeyPair(bobEphemeralPublicKey, bobEphemeralPrivateKey);
             ECKeyPair bobBaseKey = bobEphemeralKey;
+            ECKeyPair bobSignedPreKey = new ECKeyPair(Curve.decodePoint(bobSignedPreKeyPublic, 0), Curve.decodePrivatePoint(bobSignedPreKeyPrivate));
 
             ECPublicKey aliceBasePublicKey = Curve.decodePoint(aliceBasePublic, 0);
             ECPublicKey aliceEphemeralPublicKey = Curve.decodePoint(aliceEphemeralPublic, 0);
             IdentityKey aliceIdentityPublicKey = new IdentityKey(aliceIdentityPublic, 0);
 
-            BobAxolotlParameters parameters = BobAxolotlParameters.newBuilder()
-                .setOurIdentityKey(bobIdentityKey)
-                .setOurSignedPreKey(bobBaseKey)
-                .setOurRatchetKey(bobEphemeralKey)
-                .setOurOneTimePreKey(May<ECKeyPair>.NoValue)
-                .setTheirIdentityKey(aliceIdentityPublicKey)
-                .setTheirBaseKey(aliceBasePublicKey)
-                .create();
+            BobSignalProtocolParameters parameters = BobSignalProtocolParameters.newBuilder()
+                                                                                .setOurIdentityKey(bobIdentityKey)
+                                                                                .setOurSignedPreKey(bobSignedPreKey)
+                                                                                .setOurRatchetKey(bobEphemeralKey)
+                                                                                .setOurOneTimePreKey(May<ECKeyPair>.NoValue)
+                                                                                .setTheirIdentityKey(aliceIdentityPublicKey)
+                                                                                .setTheirBaseKey(aliceBasePublicKey)
+                                                                                .create();
 
             SessionState session = new SessionState();
 
-            RatchetingSession.initializeSession(session, 2, parameters);
+            RatchetingSession.initializeSession(session, parameters);
 
-            Assert.AreEqual(session.getLocalIdentityKey(), bobIdentityKey.getPublicKey());
-            Assert.AreEqual(session.getRemoteIdentityKey(), aliceIdentityPublicKey);
+            Assert.AreEqual<IdentityKey>(session.getLocalIdentityKey(), bobIdentityKey.getPublicKey());
+            Assert.AreEqual<IdentityKey>(session.getRemoteIdentityKey(), aliceIdentityPublicKey);
             CollectionAssert.AreEqual(session.getSenderChainKey().getKey(), senderChain);
         }
 
-        [TestMethod, TestCategory("libaxolotl.ratchet")]
+        [TestMethod, TestCategory("libsignal.ratchet")]
         public void testRatchetingSessionAsAlice()
         {
-            byte[] bobPublic =
-            {
-                0x05, 0x2c, 0xb4, 0x97, 0x76,
-                0xb8, 0x77, 0x02, 0x05, 0x74,
-                0x5a, 0x3a, 0x6e, 0x24, 0xf5,
-                0x79, 0xcd, 0xb4, 0xba, 0x7a,
-                0x89, 0x04, 0x10, 0x05, 0x92,
-                0x8e, 0xbb, 0xad, 0xc9, 0xc0,
-                0x5a, 0xd4, 0x58
-            };
+            byte[] bobPublic = {(byte) 0x05, (byte) 0x2c, (byte) 0xb4, (byte) 0x97, (byte) 0x76,
+                        (byte) 0xb8, (byte) 0x77, (byte) 0x02, (byte) 0x05, (byte) 0x74,
+                        (byte) 0x5a, (byte) 0x3a, (byte) 0x6e, (byte) 0x24, (byte) 0xf5,
+                        (byte) 0x79, (byte) 0xcd, (byte) 0xb4, (byte) 0xba, (byte) 0x7a,
+                        (byte) 0x89, (byte) 0x04, (byte) 0x10, (byte) 0x05, (byte) 0x92,
+                        (byte) 0x8e, (byte) 0xbb, (byte) 0xad, (byte) 0xc9, (byte) 0xc0,
+                        (byte) 0x5a, (byte) 0xd4, (byte) 0x58};
 
-            byte[] bobIdentityPublic =
-            {
-                0x05, 0xf1, 0xf4, 0x38, 0x74,
-                0xf6, 0x96, 0x69, 0x56, 0xc2,
-                0xdd, 0x47, 0x3f, 0x8f, 0xa1,
-                0x5a, 0xde, 0xb7, 0x1d, 0x1c,
-                0xb9, 0x91, 0xb2, 0x34, 0x16,
-                0x92, 0x32, 0x4c, 0xef, 0xb1,
-                0xc5, 0xe6, 0x26
-            };
+            byte[] bobIdentityPublic = {(byte) 0x05, (byte) 0xf1, (byte) 0xf4, (byte) 0x38, (byte) 0x74,
+                        (byte) 0xf6, (byte) 0x96, (byte) 0x69, (byte) 0x56, (byte) 0xc2,
+                        (byte) 0xdd, (byte) 0x47, (byte) 0x3f, (byte) 0x8f, (byte) 0xa1,
+                        (byte) 0x5a, (byte) 0xde, (byte) 0xb7, (byte) 0x1d, (byte) 0x1c,
+                        (byte) 0xb9, (byte) 0x91, (byte) 0xb2, (byte) 0x34, (byte) 0x16,
+                        (byte) 0x92, (byte) 0x32, (byte) 0x4c, (byte) 0xef, (byte) 0xb1,
+                        (byte) 0xc5, (byte) 0xe6, (byte) 0x26};
 
-            byte[] aliceBasePublic =
-            {
-                0x05, 0x47, 0x2d, 0x1f, 0xb1,
-                0xa9, 0x86, 0x2c, 0x3a, 0xf6,
-                0xbe, 0xac, 0xa8, 0x92, 0x02,
-                0x77, 0xe2, 0xb2, 0x6f, 0x4a,
-                0x79, 0x21, 0x3e, 0xc7, 0xc9,
-                0x06, 0xae, 0xb3, 0x5e, 0x03,
-                0xcf, 0x89, 0x50
-            };
+            byte[] bobSignedPreKeyPublic =  {(byte)0x05, (byte)0xac, (byte)0x24, (byte)0x8a, (byte)0x8f,
+                        (byte)0x26, (byte)0x3b, (byte)0xe6, (byte)0x86, (byte)0x35,
+                        (byte)0x76, (byte)0xeb, (byte)0x03, (byte)0x62, (byte)0xe2,
+                        (byte)0x8c, (byte)0x82, (byte)0x8f, (byte)0x01, (byte)0x07,
+                        (byte)0xa3, (byte)0x37, (byte)0x9d, (byte)0x34, (byte)0xba,
+                        (byte)0xb1, (byte)0x58, (byte)0x6b, (byte)0xf8, (byte)0xc7,
+                        (byte)0x70, (byte)0xcd, (byte)0x67};
 
-            byte[] aliceBasePrivate =
-            {
-                0x11, 0xae, 0x7c, 0x64, 0xd1,
-                0xe6, 0x1c, 0xd5, 0x96, 0xb7,
-                0x6a, 0x0d, 0xb5, 0x01, 0x26,
-                0x73, 0x39, 0x1c, 0xae, 0x66,
-                0xed, 0xbf, 0xcf, 0x07, 0x3b,
-                0x4d, 0xa8, 0x05, 0x16, 0xa4,
-                0x74, 0x49
-            };
+            byte[] aliceBasePublic = {(byte) 0x05, (byte) 0x47, (byte) 0x2d, (byte) 0x1f, (byte) 0xb1,
+                        (byte) 0xa9, (byte) 0x86, (byte) 0x2c, (byte) 0x3a, (byte) 0xf6,
+                        (byte) 0xbe, (byte) 0xac, (byte) 0xa8, (byte) 0x92, (byte) 0x02,
+                        (byte) 0x77, (byte) 0xe2, (byte) 0xb2, (byte) 0x6f, (byte) 0x4a,
+                        (byte) 0x79, (byte) 0x21, (byte) 0x3e, (byte) 0xc7, (byte) 0xc9,
+                        (byte) 0x06, (byte) 0xae, (byte) 0xb3, (byte) 0x5e, (byte) 0x03,
+                        (byte) 0xcf, (byte) 0x89, (byte) 0x50};
 
-            byte[] aliceEphemeralPublic =
-            {
-                0x05, 0x6c, 0x3e, 0x0d, 0x1f,
-                0x52, 0x02, 0x83, 0xef, 0xcc,
-                0x55, 0xfc, 0xa5, 0xe6, 0x70,
-                0x75, 0xb9, 0x04, 0x00, 0x7f,
-                0x18, 0x81, 0xd1, 0x51, 0xaf,
-                0x76, 0xdf, 0x18, 0xc5, 0x1d,
-                0x29, 0xd3, 0x4b
-            };
+            byte[] aliceBasePrivate = {(byte) 0x11, (byte) 0xae, (byte) 0x7c, (byte) 0x64, (byte) 0xd1,
+                        (byte) 0xe6, (byte) 0x1c, (byte) 0xd5, (byte) 0x96, (byte) 0xb7,
+                        (byte) 0x6a, (byte) 0x0d, (byte) 0xb5, (byte) 0x01, (byte) 0x26,
+                        (byte) 0x73, (byte) 0x39, (byte) 0x1c, (byte) 0xae, (byte) 0x66,
+                        (byte) 0xed, (byte) 0xbf, (byte) 0xcf, (byte) 0x07, (byte) 0x3b,
+                        (byte) 0x4d, (byte) 0xa8, (byte) 0x05, (byte) 0x16, (byte) 0xa4,
+                        (byte) 0x74, (byte) 0x49};
 
-            byte[] aliceEphemeralPrivate =
-            {
-                0xd1, 0xba, 0x38, 0xce, 0xa9,
-                0x17, 0x43, 0xd3, 0x39, 0x39,
-                0xc3, 0x3c, 0x84, 0x98, 0x65,
-                0x09, 0x28, 0x01, 0x61, 0xb8,
-                0xb6, 0x0f, 0xc7, 0x87, 0x0c,
-                0x59, 0x9c, 0x1d, 0x46, 0x20,
-                0x12, 0x48
-            };
+            byte[] aliceEphemeralPublic = {(byte) 0x05, (byte) 0x6c, (byte) 0x3e, (byte) 0x0d, (byte) 0x1f,
+                        (byte) 0x52, (byte) 0x02, (byte) 0x83, (byte) 0xef, (byte) 0xcc,
+                        (byte) 0x55, (byte) 0xfc, (byte) 0xa5, (byte) 0xe6, (byte) 0x70,
+                        (byte) 0x75, (byte) 0xb9, (byte) 0x04, (byte) 0x00, (byte) 0x7f,
+                        (byte) 0x18, (byte) 0x81, (byte) 0xd1, (byte) 0x51, (byte) 0xaf,
+                        (byte) 0x76, (byte) 0xdf, (byte) 0x18, (byte) 0xc5, (byte) 0x1d,
+                        (byte) 0x29, (byte) 0xd3, (byte) 0x4b};
 
-            byte[] aliceIdentityPublic =
-            {
-                0x05, 0xb4, 0xa8, 0x45, 0x56,
-                0x60, 0xad, 0xa6, 0x5b, 0x40,
-                0x10, 0x07, 0xf6, 0x15, 0xe6,
-                0x54, 0x04, 0x17, 0x46, 0x43,
-                0x2e, 0x33, 0x39, 0xc6, 0x87,
-                0x51, 0x49, 0xbc, 0xee, 0xfc,
-                0xb4, 0x2b, 0x4a
-            };
+            byte[] aliceEphemeralPrivate = {(byte) 0xd1, (byte) 0xba, (byte) 0x38, (byte) 0xce, (byte) 0xa9,
+                        (byte) 0x17, (byte) 0x43, (byte) 0xd3, (byte) 0x39, (byte) 0x39,
+                        (byte) 0xc3, (byte) 0x3c, (byte) 0x84, (byte) 0x98, (byte) 0x65,
+                        (byte) 0x09, (byte) 0x28, (byte) 0x01, (byte) 0x61, (byte) 0xb8,
+                        (byte) 0xb6, (byte) 0x0f, (byte) 0xc7, (byte) 0x87, (byte) 0x0c,
+                        (byte) 0x59, (byte) 0x9c, (byte) 0x1d, (byte) 0x46, (byte) 0x20,
+                        (byte) 0x12, (byte) 0x48};
 
-            byte[] aliceIdentityPrivate =
-            {
-                0x90, 0x40, 0xf0, 0xd4, 0xe0,
-                0x9c, 0xf3, 0x8f, 0x6d, 0xc7,
-                0xc1, 0x37, 0x79, 0xc9, 0x08,
-                0xc0, 0x15, 0xa1, 0xda, 0x4f,
-                0xa7, 0x87, 0x37, 0xa0, 0x80,
-                0xeb, 0x0a, 0x6f, 0x4f, 0x5f,
-                0x8f, 0x58
-            };
+            byte[] aliceIdentityPublic = {(byte) 0x05, (byte) 0xb4, (byte) 0xa8, (byte) 0x45, (byte) 0x56,
+                        (byte) 0x60, (byte) 0xad, (byte) 0xa6, (byte) 0x5b, (byte) 0x40,
+                        (byte) 0x10, (byte) 0x07, (byte) 0xf6, (byte) 0x15, (byte) 0xe6,
+                        (byte) 0x54, (byte) 0x04, (byte) 0x17, (byte) 0x46, (byte) 0x43,
+                        (byte) 0x2e, (byte) 0x33, (byte) 0x39, (byte) 0xc6, (byte) 0x87,
+                        (byte) 0x51, (byte) 0x49, (byte) 0xbc, (byte) 0xee, (byte) 0xfc,
+                        (byte) 0xb4, (byte) 0x2b, (byte) 0x4a};
 
-            byte[] receiverChain =
-            {
-                0xd2, 0x2f, 0xd5, 0x6d, 0x3f,
-                0xec, 0x81, 0x9c, 0xf4, 0xc3,
-                0xd5, 0x0c, 0x56, 0xed, 0xfb,
-                0x1c, 0x28, 0x0a, 0x1b, 0x31,
-                0x96, 0x45, 0x37, 0xf1, 0xd1,
-                0x61, 0xe1, 0xc9, 0x31, 0x48,
-                0xe3, 0x6b
-            };
+            byte[] aliceIdentityPrivate = {(byte) 0x90, (byte) 0x40, (byte) 0xf0, (byte) 0xd4, (byte) 0xe0,
+                        (byte) 0x9c, (byte) 0xf3, (byte) 0x8f, (byte) 0x6d, (byte) 0xc7,
+                        (byte) 0xc1, (byte) 0x37, (byte) 0x79, (byte) 0xc9, (byte) 0x08,
+                        (byte) 0xc0, (byte) 0x15, (byte) 0xa1, (byte) 0xda, (byte) 0x4f,
+                        (byte) 0xa7, (byte) 0x87, (byte) 0x37, (byte) 0xa0, (byte) 0x80,
+                        (byte) 0xeb, (byte) 0x0a, (byte) 0x6f, (byte) 0x4f, (byte) 0x5f,
+                        (byte) 0x8f, (byte) 0x58};
+
+            byte[] receiverChain = {(byte)0x97, (byte)0x97, (byte)0xca, (byte)0xca, (byte)0x53,
+                        (byte)0xc9, (byte)0x89, (byte)0xbb, (byte)0xe2, (byte)0x29,
+                        (byte)0xa4, (byte)0x0c, (byte)0xa7, (byte)0x72, (byte)0x70,
+                        (byte)0x10, (byte)0xeb, (byte)0x26, (byte)0x04, (byte)0xfc,
+                        (byte)0x14, (byte)0x94, (byte)0x5d, (byte)0x77, (byte)0x95,
+                        (byte)0x8a, (byte)0x0a, (byte)0xed, (byte)0xa0, (byte)0x88,
+                        (byte)0xb4, (byte)0x4d};
 
             IdentityKey bobIdentityKey = new IdentityKey(bobIdentityPublic, 0);
             ECPublicKey bobEphemeralPublicKey = Curve.decodePoint(bobPublic, 0);
-            ECPublicKey bobBasePublicKey = bobEphemeralPublicKey;
+            ECPublicKey bobSignedPreKey = Curve.decodePoint(bobSignedPreKeyPublic, 0);
             ECPublicKey aliceBasePublicKey = Curve.decodePoint(aliceBasePublic, 0);
             ECPrivateKey aliceBasePrivateKey = Curve.decodePrivatePoint(aliceBasePrivate);
             ECKeyPair aliceBaseKey = new ECKeyPair(aliceBasePublicKey, aliceBasePrivateKey);
@@ -260,20 +251,21 @@ namespace libaxolotl_test
 
             SessionState session = new SessionState();
 
-            AliceAxolotlParameters parameters = AliceAxolotlParameters.newBuilder()
-                .setOurBaseKey(aliceBaseKey)
-                .setOurIdentityKey(aliceIdentityKey)
-                .setTheirIdentityKey(bobIdentityKey)
-                .setTheirSignedPreKey(bobBasePublicKey)
-                .setTheirRatchetKey(bobEphemeralPublicKey)
-                .setTheirOneTimePreKey(May<ECPublicKey>.NoValue)
-                .create();
+            AliceSignalProtocolParameters parameters = AliceSignalProtocolParameters.newBuilder()
+                                                                                    .setOurBaseKey(aliceBaseKey)
+                                                                                    .setOurIdentityKey(aliceIdentityKey)
+                                                                                    .setTheirIdentityKey(bobIdentityKey)
+                                                                                    .setTheirSignedPreKey(bobSignedPreKey)
+                                                                                    .setTheirRatchetKey(bobEphemeralPublicKey)
+                                                                                    .setTheirOneTimePreKey(May<ECPublicKey>.NoValue)
+                                                                                    .create();
 
-            RatchetingSession.initializeSession(session, 2, parameters);
+            RatchetingSession.initializeSession(session, parameters);
 
-            Assert.AreEqual(session.getLocalIdentityKey(), aliceIdentityKey.getPublicKey());
-            Assert.AreEqual(session.getRemoteIdentityKey(), bobIdentityKey);
-            CollectionAssert.AreEqual(session.getReceiverChainKey(bobEphemeralPublicKey).getKey(), receiverChain);
+            Assert.AreEqual<IdentityKey>(session.getLocalIdentityKey(), aliceIdentityKey.getPublicKey());
+            Assert.AreEqual<IdentityKey>(session.getRemoteIdentityKey(), bobIdentityKey);
+            CollectionAssert.AreEqual(
+                session.getReceiverChainKey(bobEphemeralPublicKey).getKey(), receiverChain);
         }
     }
 }

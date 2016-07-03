@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- namespace libaxolotl.ecc.impl
+ namespace libsignal.ecc.impl
 {
 	/// <summary>
 	/// If you want to expose an implementation of Curve25519 to this class library,

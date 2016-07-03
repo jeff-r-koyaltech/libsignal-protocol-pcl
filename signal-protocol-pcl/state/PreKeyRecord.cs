@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,15 +16,11 @@
  */
 
 using Google.ProtocolBuffers;
-using libaxolotl.ecc;
+using libsignal.ecc;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static libaxolotl.state.StorageProtos;
+using static libsignal.state.StorageProtos;
 
-namespace libaxolotl.state
+namespace libsignal.state
 {
     public class PreKeyRecord
     {

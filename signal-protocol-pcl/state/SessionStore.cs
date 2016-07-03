@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,14 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using libaxolotl;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.state
+namespace libsignal.state
 {
     /**
      * The interface to the durable store of session state information
@@ -46,7 +42,7 @@ namespace libaxolotl.state
          * @return a copy of the SessionRecord corresponding to the recipientId + deviceId tuple, or
          *         a new SessionRecord if one does not currently exist.
          */
-        SessionRecord LoadSession(AxolotlAddress address);
+        SessionRecord LoadSession(SignalProtocolAddress address);
 
         /**
          * Returns all known devices with active sessions for a recipient
@@ -61,21 +57,21 @@ namespace libaxolotl.state
          * @param address the address of the remote client.
          * @param record the current SessionRecord for the remote client.
          */
-        void StoreSession(AxolotlAddress address, SessionRecord record);
+        void StoreSession(SignalProtocolAddress address, SessionRecord record);
 
         /**
          * Determine whether there is a committed {@link SessionRecord} for a recipientId + deviceId tuple.
          * @param address the address of the remote client.
          * @return true if a {@link SessionRecord} exists, false otherwise.
          */
-         bool ContainsSession(AxolotlAddress address);
+         bool ContainsSession(SignalProtocolAddress address);
 
         /**
          * Remove a {@link SessionRecord} for a recipientId + deviceId tuple.
          *
          * @param address the address of the remote client.
          */
-         void DeleteSession(AxolotlAddress address);
+         void DeleteSession(SignalProtocolAddress address);
 
         /**
          * Remove the {@link SessionRecord}s corresponding to all devices of a recipientId.

@@ -1,0 +1,10 @@
+message FingerprintData {
+  optional bytes publicKey  = 1;
+  optional bytes identifier = 2;
+}
+
+message CombinedFingerprint {
+  optional uint32          version           = 1;
+  optional FingerprintData localFingerprint  = 2;
+  optional FingerprintData remoteFingerprint = 3;
+}

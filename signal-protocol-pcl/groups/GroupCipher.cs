@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2015 langboost, smndtrl
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,23 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using libaxolotl.groups.ratchet;
-using libaxolotl.groups.state;
-using libaxolotl.protocol;
-using libaxolotl.util;
+using libsignal.groups.ratchet;
+using libsignal.groups.state;
+using libsignal.protocol;
+using libsignal.util;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.groups
+namespace libsignal.groups
 {
     /**
-     * The main entry point for axolotl group encrypt/decrypt operations.
+     * The main entry point for Signal Protocol group encrypt/decrypt operations.
      *
-     * Once a session has been established with {@link org.whispersystems.libaxolotl.groups.GroupSessionBuilder}
-     * and a {@link org.whispersystems.libaxolotl.protocol.SenderKeyDistributionMessage} has been
+     * Once a session has been established with {@link org.whispersystems.libsignal.groups.GroupSessionBuilder}
+     * and a {@link org.whispersystems.libsignal.protocol.SenderKeyDistributionMessage} has been
      * distributed to each member of the group, this class can be used for all subsequent encrypt/decrypt
      * operations within that session (ie: until group membership changes).
      *
@@ -144,11 +140,7 @@ namespace libaxolotl.groups
 
                     return plaintext;
                 }
-                catch (InvalidKeyException e)
-                {
-                    throw new InvalidMessageException(e);
-                }
-                catch (InvalidKeyIdException e)
+                catch (Exception e) when (e is InvalidKeyException || e is InvalidKeyIdException)
                 {
                     throw new InvalidMessageException(e);
                 }

@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,15 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace libaxolotl.protocol
+namespace libsignal.protocol
 {
-    public abstract class CiphertextMessage // interface
+    public abstract class CiphertextMessage
     {
 
         public const uint UNSUPPORTED_VERSION = 1;
@@ -34,11 +28,13 @@ namespace libaxolotl.protocol
         public const uint SENDERKEY_TYPE = 4;
         public const uint SENDERKEY_DISTRIBUTION_TYPE = 5;
 
-        // This should be the worst case (worse than V2).  So not always accurate, but good enough for padding.
+        /// <summary>
+        /// This should be the worst case (worse than V2).  So not always accurate, but good enough for padding.
+        /// </summary>
         public const uint ENCRYPTED_MESSAGE_OVERHEAD = 53;
 
-        public abstract byte[] serialize(); // -abstract
-        public abstract uint getType(); // -abstract
+        public abstract byte[] serialize();
+        public abstract uint getType();
 
     }
 }

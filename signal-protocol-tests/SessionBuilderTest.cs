@@ -1,29 +1,46 @@
-﻿using libaxolotl;
-using libaxolotl.ecc;
-using libaxolotl.exceptions;
-using libaxolotl.protocol;
-using libaxolotl.state;
-using libaxolotl.util;
+﻿/** 
+ * Copyright (C) 2016 langboost
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using libsignal;
+using libsignal.ecc;
+using libsignal.exceptions;
+using libsignal.protocol;
+using libsignal.state;
+using libsignal.util;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace libaxolotl_test
+namespace libsignal_test
 {
 
     [TestClass]
     public class SessionBuilderTest
     {
-        private static readonly AxolotlAddress ALICE_ADDRESS = new AxolotlAddress("+14151111111", 1);
-        private static readonly AxolotlAddress BOB_ADDRESS = new AxolotlAddress("+14152222222", 1);
+        private static readonly SignalProtocolAddress ALICE_ADDRESS = new SignalProtocolAddress("+14151111111", 1);
+        private static readonly SignalProtocolAddress BOB_ADDRESS = new SignalProtocolAddress("+14152222222", 1);
 
         class BobDecryptionCallback : DecryptionCallback
         {
-            readonly AxolotlStore bobStore;
+            readonly SignalProtocolStore bobStore;
             readonly String originalMessage;
 
-            public BobDecryptionCallback(AxolotlStore bobStore, String originalMessage)
+            public BobDecryptionCallback(SignalProtocolStore bobStore, String originalMessage)
             {
                 this.bobStore = bobStore;
                 this.originalMessage = originalMessage;
@@ -36,99 +53,13 @@ namespace libaxolotl_test
             }
         }
 
-        [TestMethod, TestCategory("libaxolotl")]
-        public void testBasicPreKeyV2()
-        {
-            AxolotlStore aliceStore = new TestInMemoryAxolotlStore();
-            SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
-
-            AxolotlStore bobStore = new TestInMemoryAxolotlStore();
-            ECKeyPair bobPreKeyPair = Curve.generateKeyPair();
-            PreKeyBundle bobPreKey = new PreKeyBundle(bobStore.GetLocalRegistrationId(), 1,
-                                                          31337, bobPreKeyPair.getPublicKey(),
-                                                          0, null, null,
-                                                          bobStore.GetIdentityKeyPair().getPublicKey());
-
-            aliceSessionBuilder.process(bobPreKey);
-
-            Assert.IsTrue(aliceStore.ContainsSession(BOB_ADDRESS));
-            Assert.AreEqual((uint)2, aliceStore.LoadSession(BOB_ADDRESS).getSessionState().getSessionVersion());
-
-            String originalMessage = "L'homme est condamné à être libre";
-            SessionCipher aliceSessionCipher = new SessionCipher(aliceStore, BOB_ADDRESS);
-            CiphertextMessage outgoingMessage = aliceSessionCipher.encrypt(Encoding.UTF8.GetBytes(originalMessage));
-
-            Assert.AreEqual(CiphertextMessage.PREKEY_TYPE, outgoingMessage.getType());
-
-            PreKeyWhisperMessage incomingMessage = new PreKeyWhisperMessage(outgoingMessage.serialize());
-            bobStore.StorePreKey(31337, new PreKeyRecord(bobPreKey.getPreKeyId(), bobPreKeyPair));
-
-            SessionCipher bobSessionCipher = new SessionCipher(bobStore, ALICE_ADDRESS);
-            byte[] plaintext = bobSessionCipher.decrypt(incomingMessage);
-
-            Assert.IsTrue(bobStore.ContainsSession(ALICE_ADDRESS));
-            Assert.AreEqual((uint)2, bobStore.LoadSession(ALICE_ADDRESS).getSessionState().getSessionVersion());
-            Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(plaintext));
-
-            CiphertextMessage bobOutgoingMessage = bobSessionCipher.encrypt(Encoding.UTF8.GetBytes(originalMessage));
-            Assert.AreEqual(CiphertextMessage.WHISPER_TYPE, bobOutgoingMessage.getType());
-
-            byte[] alicePlaintext = aliceSessionCipher.decrypt((WhisperMessage)bobOutgoingMessage);
-            Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(alicePlaintext));
-
-            runInteraction(aliceStore, bobStore);
-
-            aliceStore = new TestInMemoryAxolotlStore();
-            aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
-            aliceSessionCipher = new SessionCipher(aliceStore, BOB_ADDRESS);
-
-            bobPreKeyPair = Curve.generateKeyPair();
-            bobPreKey = new PreKeyBundle(bobStore.GetLocalRegistrationId(),
-                                         1, 31338, bobPreKeyPair.getPublicKey(),
-                                         0, null, null, bobStore.GetIdentityKeyPair().getPublicKey());
-
-            bobStore.StorePreKey(31338, new PreKeyRecord(bobPreKey.getPreKeyId(), bobPreKeyPair));
-            aliceSessionBuilder.process(bobPreKey);
-
-            outgoingMessage = aliceSessionCipher.encrypt(Encoding.UTF8.GetBytes(originalMessage));
-
-            try
-            {
-                bobSessionCipher.decrypt(new PreKeyWhisperMessage(outgoingMessage.serialize()));
-                throw new Exception("shouldn't be trusted!");
-            }
-            catch (UntrustedIdentityException uie)
-            {
-                bobStore.SaveIdentity(ALICE_ADDRESS.getName(), new PreKeyWhisperMessage(outgoingMessage.serialize()).getIdentityKey());
-            }
-
-            plaintext = bobSessionCipher.decrypt(new PreKeyWhisperMessage(outgoingMessage.serialize()));
-
-            Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(plaintext));
-
-            bobPreKey = new PreKeyBundle(bobStore.GetLocalRegistrationId(), 1,
-                                         31337, Curve.generateKeyPair().getPublicKey(),
-                                         0, null, null,
-                                         aliceStore.GetIdentityKeyPair().getPublicKey());
-
-            try
-            {
-                aliceSessionBuilder.process(bobPreKey);
-                throw new Exception("shoulnd't be trusted!");
-            }
-            catch (UntrustedIdentityException uie)
-            {
-                // good
-            }
-        }
-
-        [TestMethod, TestCategory("libaxolotl")]
+        [TestMethod, TestCategory("libsignal")]
         public void testBasicPreKeyV3()
         {
-            AxolotlStore aliceStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
             SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
 
-            AxolotlStore bobStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore bobStore = new TestInMemorySignalProtocolStore();
             ECKeyPair bobPreKeyPair = Curve.generateKeyPair();
             ECKeyPair bobSignedPreKeyPair = Curve.generateKeyPair();
             byte[] bobSignedPreKeySignature = Curve.calculateSignature(bobStore.GetIdentityKeyPair().getPrivateKey(),
@@ -151,7 +82,7 @@ namespace libaxolotl_test
 
             Assert.AreEqual(CiphertextMessage.PREKEY_TYPE, outgoingMessage.getType());
 
-            PreKeyWhisperMessage incomingMessage = new PreKeyWhisperMessage(outgoingMessage.serialize());
+            PreKeySignalMessage incomingMessage = new PreKeySignalMessage(outgoingMessage.serialize());
             bobStore.StorePreKey(31337, new PreKeyRecord(bobPreKey.getPreKeyId(), bobPreKeyPair));
             bobStore.StoreSignedPreKey(22, new SignedPreKeyRecord(22, DateUtil.currentTimeMillis(), bobSignedPreKeyPair, bobSignedPreKeySignature));
 
@@ -166,12 +97,12 @@ namespace libaxolotl_test
             CiphertextMessage bobOutgoingMessage = bobSessionCipher.encrypt(Encoding.UTF8.GetBytes(originalMessage));
             Assert.AreEqual(CiphertextMessage.WHISPER_TYPE, bobOutgoingMessage.getType());
 
-            byte[] alicePlaintext = aliceSessionCipher.decrypt(new WhisperMessage(bobOutgoingMessage.serialize()));
+            byte[] alicePlaintext = aliceSessionCipher.decrypt(new SignalMessage(bobOutgoingMessage.serialize()));
             Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(alicePlaintext));
 
             runInteraction(aliceStore, bobStore);
 
-            aliceStore = new TestInMemoryAxolotlStore();
+            aliceStore = new TestInMemorySignalProtocolStore();
             aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
             aliceSessionCipher = new SessionCipher(aliceStore, BOB_ADDRESS);
 
@@ -191,15 +122,15 @@ namespace libaxolotl_test
 
             try
             {
-                plaintext = bobSessionCipher.decrypt(new PreKeyWhisperMessage(outgoingMessage.serialize()));
+                plaintext = bobSessionCipher.decrypt(new PreKeySignalMessage(outgoingMessage.serialize()));
                 throw new Exception("shouldn't be trusted!");
             }
-            catch (UntrustedIdentityException uie)
+            catch (UntrustedIdentityException)
             {
-                bobStore.SaveIdentity(ALICE_ADDRESS.getName(), new PreKeyWhisperMessage(outgoingMessage.serialize()).getIdentityKey());
+                bobStore.SaveIdentity(ALICE_ADDRESS.getName(), new PreKeySignalMessage(outgoingMessage.serialize()).getIdentityKey());
             }
 
-            plaintext = bobSessionCipher.decrypt(new PreKeyWhisperMessage(outgoingMessage.serialize()));
+            plaintext = bobSessionCipher.decrypt(new PreKeySignalMessage(outgoingMessage.serialize()));
             Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(plaintext));
 
             bobPreKey = new PreKeyBundle(bobStore.GetLocalRegistrationId(), 1,
@@ -212,16 +143,16 @@ namespace libaxolotl_test
                 aliceSessionBuilder.process(bobPreKey);
                 throw new Exception("shoulnd't be trusted!");
             }
-            catch (UntrustedIdentityException uie)
+            catch (UntrustedIdentityException)
             {
                 // good
             }
         }
 
-        [TestMethod, TestCategory("libaxolotl")]
+        [TestMethod, TestCategory("libsignal")]
         public void testBadSignedPreKeySignature()
         {
-            AxolotlStore aliceStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
             SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
 
             IdentityKeyStore bobIdentityKeyStore = new TestInMemoryIdentityKeyStore();
@@ -249,7 +180,7 @@ namespace libaxolotl_test
                     aliceSessionBuilder.process(bobPreKey);
                     throw new Exception("Accepted modified device key signature!");
                 }
-                catch (InvalidKeyException ike)
+                catch (InvalidKeyException)
                 {
                     // good
                 }
@@ -263,68 +194,13 @@ namespace libaxolotl_test
             aliceSessionBuilder.process(bobPreKey2);
         }
 
-        [TestMethod, TestCategory("libaxolotl")]
-        public void testRepeatBundleMessageV2()
-        {
-            AxolotlStore aliceStore = new TestInMemoryAxolotlStore();
-            SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
-
-            AxolotlStore bobStore = new TestInMemoryAxolotlStore();
-
-            ECKeyPair bobPreKeyPair = Curve.generateKeyPair();
-            ECKeyPair bobSignedPreKeyPair = Curve.generateKeyPair();
-            byte[] bobSignedPreKeySignature = Curve.calculateSignature(bobStore.GetIdentityKeyPair().getPrivateKey(),
-                                                                          bobSignedPreKeyPair.getPublicKey().serialize());
-
-            PreKeyBundle bobPreKey = new PreKeyBundle(bobStore.GetLocalRegistrationId(), 1,
-                                                      31337, bobPreKeyPair.getPublicKey(),
-                                                      0, null, null,
-                                                      bobStore.GetIdentityKeyPair().getPublicKey());
-
-            bobStore.StorePreKey(31337, new PreKeyRecord(bobPreKey.getPreKeyId(), bobPreKeyPair));
-            bobStore.StoreSignedPreKey(22, new SignedPreKeyRecord(22, DateUtil.currentTimeMillis(), bobSignedPreKeyPair, bobSignedPreKeySignature));
-
-            aliceSessionBuilder.process(bobPreKey);
-
-            String originalMessage = "L'homme est condamné à être libre";
-            SessionCipher aliceSessionCipher = new SessionCipher(aliceStore, BOB_ADDRESS);
-            CiphertextMessage outgoingMessageOne = aliceSessionCipher.encrypt(Encoding.UTF8.GetBytes(originalMessage));
-            CiphertextMessage outgoingMessageTwo = aliceSessionCipher.encrypt(Encoding.UTF8.GetBytes(originalMessage));
-
-            Assert.AreEqual(CiphertextMessage.PREKEY_TYPE, outgoingMessageOne.getType());
-
-            PreKeyWhisperMessage incomingMessage = new PreKeyWhisperMessage(outgoingMessageOne.serialize());
-
-            SessionCipher bobSessionCipher = new SessionCipher(bobStore, ALICE_ADDRESS);
-
-            byte[] plaintext = bobSessionCipher.decrypt(incomingMessage);
-            Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(plaintext));
-
-            CiphertextMessage bobOutgoingMessage = bobSessionCipher.encrypt(Encoding.UTF8.GetBytes(originalMessage));
-
-            byte[] alicePlaintext = aliceSessionCipher.decrypt(new WhisperMessage(bobOutgoingMessage.serialize()));
-            Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(alicePlaintext));
-
-            // The test
-
-            PreKeyWhisperMessage incomingMessageTwo = new PreKeyWhisperMessage(outgoingMessageTwo.serialize());
-
-            plaintext = bobSessionCipher.decrypt(incomingMessageTwo);
-            Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(plaintext));
-
-            bobOutgoingMessage = bobSessionCipher.encrypt(Encoding.UTF8.GetBytes(originalMessage));
-            alicePlaintext = aliceSessionCipher.decrypt(new WhisperMessage(bobOutgoingMessage.serialize()));
-            Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(alicePlaintext));
-
-        }
-
-        [TestMethod, TestCategory("libaxolotl")]
+        [TestMethod, TestCategory("libsignal")]
         public void testRepeatBundleMessageV3()
         {
-            AxolotlStore aliceStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
             SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
 
-            AxolotlStore bobStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore bobStore = new TestInMemorySignalProtocolStore();
 
             ECKeyPair bobPreKeyPair = Curve.generateKeyPair();
             ECKeyPair bobSignedPreKeyPair = Curve.generateKeyPair();
@@ -349,7 +225,7 @@ namespace libaxolotl_test
             Assert.AreEqual(CiphertextMessage.PREKEY_TYPE, outgoingMessageOne.getType());
             Assert.AreEqual(CiphertextMessage.PREKEY_TYPE, outgoingMessageTwo.getType());
 
-            PreKeyWhisperMessage incomingMessage = new PreKeyWhisperMessage(outgoingMessageOne.serialize());
+            PreKeySignalMessage incomingMessage = new PreKeySignalMessage(outgoingMessageOne.serialize());
 
             SessionCipher bobSessionCipher = new SessionCipher(bobStore, ALICE_ADDRESS);
 
@@ -358,29 +234,29 @@ namespace libaxolotl_test
 
             CiphertextMessage bobOutgoingMessage = bobSessionCipher.encrypt(Encoding.UTF8.GetBytes(originalMessage));
 
-            byte[] alicePlaintext = aliceSessionCipher.decrypt(new WhisperMessage(bobOutgoingMessage.serialize()));
+            byte[] alicePlaintext = aliceSessionCipher.decrypt(new SignalMessage(bobOutgoingMessage.serialize()));
             Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(alicePlaintext));
 
             // The test
 
-            PreKeyWhisperMessage incomingMessageTwo = new PreKeyWhisperMessage(outgoingMessageTwo.serialize());
+            PreKeySignalMessage incomingMessageTwo = new PreKeySignalMessage(outgoingMessageTwo.serialize());
 
-            plaintext = bobSessionCipher.decrypt(new PreKeyWhisperMessage(incomingMessageTwo.serialize()));
+            plaintext = bobSessionCipher.decrypt(new PreKeySignalMessage(incomingMessageTwo.serialize()));
             Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(plaintext));
 
             bobOutgoingMessage = bobSessionCipher.encrypt(Encoding.UTF8.GetBytes(originalMessage));
-            alicePlaintext = aliceSessionCipher.decrypt(new WhisperMessage(bobOutgoingMessage.serialize()));
+            alicePlaintext = aliceSessionCipher.decrypt(new SignalMessage(bobOutgoingMessage.serialize()));
             Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(alicePlaintext));
 
         }
 
-        [TestMethod, TestCategory("libaxolotl")]
+        [TestMethod, TestCategory("libsignal")]
         public void testBadMessageBundle()
         {
-            AxolotlStore aliceStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
             SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
 
-            AxolotlStore bobStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore bobStore = new TestInMemorySignalProtocolStore();
 
             ECKeyPair bobPreKeyPair = Curve.generateKeyPair();
             ECKeyPair bobSignedPreKeyPair = Curve.generateKeyPair();
@@ -409,7 +285,7 @@ namespace libaxolotl_test
 
             badMessage[badMessage.Length - 10] ^= 0x01;
 
-            PreKeyWhisperMessage incomingMessage = new PreKeyWhisperMessage(badMessage);
+            PreKeySignalMessage incomingMessage = new PreKeySignalMessage(badMessage);
             SessionCipher bobSessionCipher = new SessionCipher(bobStore, ALICE_ADDRESS);
 
             byte[] plaintext = new byte[0];
@@ -419,26 +295,26 @@ namespace libaxolotl_test
                 plaintext = bobSessionCipher.decrypt(incomingMessage);
                 throw new Exception("Decrypt should have failed!");
             }
-            catch (InvalidMessageException e)
+            catch (InvalidMessageException)
             {
                 // good.
             }
 
             Assert.IsTrue(bobStore.ContainsPreKey(31337));
 
-            plaintext = bobSessionCipher.decrypt(new PreKeyWhisperMessage(goodMessage));
+            plaintext = bobSessionCipher.decrypt(new PreKeySignalMessage(goodMessage));
 
             Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(plaintext));
             Assert.IsFalse(bobStore.ContainsPreKey(31337));
         }
 
-        [TestMethod, TestCategory("libaxolotl")]
+        [TestMethod, TestCategory("libsignal")]
         public void testBasicKeyExchange()
         {
-            AxolotlStore aliceStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
             SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
 
-            AxolotlStore bobStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore bobStore = new TestInMemorySignalProtocolStore();
             SessionBuilder bobSessionBuilder = new SessionBuilder(bobStore, ALICE_ADDRESS);
 
             KeyExchangeMessage aliceKeyExchangeMessage = aliceSessionBuilder.process();
@@ -458,7 +334,7 @@ namespace libaxolotl_test
 
             runInteraction(aliceStore, bobStore);
 
-            aliceStore = new TestInMemoryAxolotlStore();
+            aliceStore = new TestInMemorySignalProtocolStore();
             aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
             aliceKeyExchangeMessage = aliceSessionBuilder.process();
 
@@ -467,7 +343,7 @@ namespace libaxolotl_test
                 bobKeyExchangeMessage = bobSessionBuilder.process(aliceKeyExchangeMessage);
                 throw new Exception("This identity shouldn't be trusted!");
             }
-            catch (UntrustedIdentityException uie)
+            catch (UntrustedIdentityException)
             {
                 bobStore.SaveIdentity(ALICE_ADDRESS.getName(), aliceKeyExchangeMessage.getIdentityKey());
                 bobKeyExchangeMessage = bobSessionBuilder.process(aliceKeyExchangeMessage);
@@ -478,13 +354,13 @@ namespace libaxolotl_test
             runInteraction(aliceStore, bobStore);
         }
 
-        [TestMethod, TestCategory("libaxolotl")]
+        [TestMethod, TestCategory("libsignal")]
         public void testSimultaneousKeyExchange()
         {
-            AxolotlStore aliceStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
             SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
 
-            AxolotlStore bobStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore bobStore = new TestInMemorySignalProtocolStore();
             SessionBuilder bobSessionBuilder = new SessionBuilder(bobStore, ALICE_ADDRESS);
 
             KeyExchangeMessage aliceKeyExchange = aliceSessionBuilder.process();
@@ -508,13 +384,13 @@ namespace libaxolotl_test
             runInteraction(aliceStore, bobStore);
         }
 
-        [TestMethod, TestCategory("libaxolotl")]
+        [TestMethod, TestCategory("libsignal")]
         public void testOptionalOneTimePreKey()
         {
-            AxolotlStore aliceStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
             SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, BOB_ADDRESS);
 
-            AxolotlStore bobStore = new TestInMemoryAxolotlStore();
+            SignalProtocolStore bobStore = new TestInMemorySignalProtocolStore();
 
             ECKeyPair bobPreKeyPair = Curve.generateKeyPair();
             ECKeyPair bobSignedPreKeyPair = Curve.generateKeyPair();
@@ -538,7 +414,7 @@ namespace libaxolotl_test
 
             Assert.AreEqual(outgoingMessage.getType(), CiphertextMessage.PREKEY_TYPE);
 
-            PreKeyWhisperMessage incomingMessage = new PreKeyWhisperMessage(outgoingMessage.serialize());
+            PreKeySignalMessage incomingMessage = new PreKeySignalMessage(outgoingMessage.serialize());
             Assert.IsFalse(incomingMessage.getPreKeyId().HasValue);
 
             bobStore.StorePreKey(31337, new PreKeyRecord(bobPreKey.getPreKeyId(), bobPreKeyPair));
@@ -553,7 +429,7 @@ namespace libaxolotl_test
             Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(plaintext));
         }
 
-        private void runInteraction(AxolotlStore aliceStore, AxolotlStore bobStore)
+        private void runInteraction(SignalProtocolStore aliceStore, SignalProtocolStore bobStore)
         {
             SessionCipher aliceSessionCipher = new SessionCipher(aliceStore, BOB_ADDRESS);
             SessionCipher bobSessionCipher = new SessionCipher(bobStore, ALICE_ADDRESS);
@@ -563,14 +439,14 @@ namespace libaxolotl_test
 
             Assert.AreEqual(CiphertextMessage.WHISPER_TYPE, aliceMessage.getType());
 
-            byte[] plaintext = bobSessionCipher.decrypt(new WhisperMessage(aliceMessage.serialize()));
+            byte[] plaintext = bobSessionCipher.decrypt(new SignalMessage(aliceMessage.serialize()));
             Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(plaintext));
 
             CiphertextMessage bobMessage = bobSessionCipher.encrypt(Encoding.UTF8.GetBytes(originalMessage));
 
             Assert.AreEqual(CiphertextMessage.WHISPER_TYPE, bobMessage.getType());
 
-            plaintext = aliceSessionCipher.decrypt(new WhisperMessage(bobMessage.serialize()));
+            plaintext = aliceSessionCipher.decrypt(new SignalMessage(bobMessage.serialize()));
             Assert.AreEqual(originalMessage, Encoding.UTF8.GetString(plaintext));
 
             for (int i = 0; i < 10; i++)
@@ -580,7 +456,7 @@ namespace libaxolotl_test
                                          "surges up in the world--and defines himself aftward. " + i);
                 CiphertextMessage aliceLoopingMessage = aliceSessionCipher.encrypt(Encoding.UTF8.GetBytes(loopingMessage));
 
-                byte[] loopingPlaintext = bobSessionCipher.decrypt(new WhisperMessage(aliceLoopingMessage.serialize()));
+                byte[] loopingPlaintext = bobSessionCipher.decrypt(new SignalMessage(aliceLoopingMessage.serialize()));
                 Assert.AreEqual(loopingMessage, Encoding.UTF8.GetString(loopingPlaintext));
             }
 
@@ -591,7 +467,7 @@ namespace libaxolotl_test
                                          "surges up in the world--and defines himself aftward. " + i);
                 CiphertextMessage bobLoopingMessage = bobSessionCipher.encrypt(Encoding.UTF8.GetBytes(loopingMessage));
 
-                byte[] loopingPlaintext = aliceSessionCipher.decrypt(new WhisperMessage(bobLoopingMessage.serialize()));
+                byte[] loopingPlaintext = aliceSessionCipher.decrypt(new SignalMessage(bobLoopingMessage.serialize()));
                 Assert.AreEqual(loopingMessage, Encoding.UTF8.GetString(loopingPlaintext));
             }
 
@@ -614,7 +490,7 @@ namespace libaxolotl_test
                                          "surges up in the world--and defines himself aftward. " + i);
                 CiphertextMessage aliceLoopingMessage = aliceSessionCipher.encrypt(Encoding.UTF8.GetBytes(loopingMessage));
 
-                byte[] loopingPlaintext = bobSessionCipher.decrypt(new WhisperMessage(aliceLoopingMessage.serialize()));
+                byte[] loopingPlaintext = bobSessionCipher.decrypt(new SignalMessage(aliceLoopingMessage.serialize()));
                 Assert.AreEqual(loopingMessage, Encoding.UTF8.GetString(loopingPlaintext));
             }
 
@@ -623,13 +499,13 @@ namespace libaxolotl_test
                 String loopingMessage = ("You can only desire based on what you know: " + i);
                 CiphertextMessage bobLoopingMessage = bobSessionCipher.encrypt(Encoding.UTF8.GetBytes(loopingMessage));
 
-                byte[] loopingPlaintext = aliceSessionCipher.decrypt(new WhisperMessage(bobLoopingMessage.serialize()));
+                byte[] loopingPlaintext = aliceSessionCipher.decrypt(new SignalMessage(bobLoopingMessage.serialize()));
                 Assert.AreEqual(loopingMessage, Encoding.UTF8.GetString(loopingPlaintext));
             }
 
             foreach (Pair<String, CiphertextMessage> aliceOutOfOrderMessage in aliceOutOfOrderMessages)
             {
-                byte[] outOfOrderPlaintext = bobSessionCipher.decrypt(new WhisperMessage(aliceOutOfOrderMessage.second().serialize()));
+                byte[] outOfOrderPlaintext = bobSessionCipher.decrypt(new SignalMessage(aliceOutOfOrderMessage.second().serialize()));
                 Assert.AreEqual(aliceOutOfOrderMessage.first(), Encoding.UTF8.GetString(outOfOrderPlaintext));
             }
         }

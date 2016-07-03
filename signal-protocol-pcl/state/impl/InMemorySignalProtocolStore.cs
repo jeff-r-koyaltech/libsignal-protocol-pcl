@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,13 +17,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.state.impl
+namespace libsignal.state.impl
 {
-    public class InMemoryAxolotlStore : AxolotlStore
+    public class InMemorySignalProtocolStore : SignalProtocolStore
     {
 
         private readonly InMemoryPreKeyStore preKeyStore = new InMemoryPreKeyStore();
@@ -32,7 +29,7 @@ namespace libaxolotl.state.impl
 
         private readonly InMemoryIdentityKeyStore identityKeyStore;
 
-        public InMemoryAxolotlStore(IdentityKeyPair identityKeyPair, uint registrationId)
+        public InMemorySignalProtocolStore(IdentityKeyPair identityKeyPair, uint registrationId)
         {
             this.identityKeyStore = new InMemoryIdentityKeyStore(identityKeyPair, registrationId);
         }
@@ -87,7 +84,7 @@ namespace libaxolotl.state.impl
         }
 
 
-        public SessionRecord LoadSession(AxolotlAddress address)
+        public SessionRecord LoadSession(SignalProtocolAddress address)
         {
             return sessionStore.LoadSession(address);
         }
@@ -99,19 +96,19 @@ namespace libaxolotl.state.impl
         }
 
 
-        public void StoreSession(AxolotlAddress address, SessionRecord record)
+        public void StoreSession(SignalProtocolAddress address, SessionRecord record)
         {
             sessionStore.StoreSession(address, record);
         }
 
 
-        public bool ContainsSession(AxolotlAddress address)
+        public bool ContainsSession(SignalProtocolAddress address)
         {
             return sessionStore.ContainsSession(address);
         }
 
 
-        public void DeleteSession(AxolotlAddress address)
+        public void DeleteSession(SignalProtocolAddress address)
         {
             sessionStore.DeleteSession(address);
         }

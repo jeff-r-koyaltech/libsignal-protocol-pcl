@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,12 +16,8 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.groups
+namespace libsignal.groups
 {
     /**
      * A representation of a (groupId + senderId + deviceId) tuple.
@@ -30,9 +26,9 @@ namespace libaxolotl.groups
     {
 
         private readonly String groupId;
-        private readonly AxolotlAddress sender;
+        private readonly SignalProtocolAddress sender;
 
-        public SenderKeyName(String groupId, AxolotlAddress sender)
+        public SenderKeyName(String groupId, SignalProtocolAddress sender)
         {
             this.groupId = groupId;
             this.sender = sender;
@@ -43,7 +39,7 @@ namespace libaxolotl.groups
             return groupId;
         }
 
-        public AxolotlAddress getSender()
+        public SignalProtocolAddress getSender()
         {
             return sender;
         }

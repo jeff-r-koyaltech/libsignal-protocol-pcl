@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,16 +16,31 @@
  */
 
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.util
+namespace libsignal.util
 {
     public class ByteUtil
     {
+        /// <summary>
+        /// This is a timing attack resistant implementation of MessageDigest.isEqual(). According to
+        /// https://codahale.com/a-lesson-in-timing-attacks/ , this helper method in the Java
+        /// environment is vulnerable to timing attacks.
+        /// </summary>
+        public static bool isEqual(byte[] first, byte[] second)
+        {
+            if (first.Length != second.Length)
+            {
+                return false;
+            }
+
+            int result = 0;
+            for (int i = 0; i < first.Length; i++)
+            {
+                result |= first[i] ^ second[i];
+            }
+            return result == 0;
+        }
 
         public static byte[] combine(params byte[][] elements)
         {
@@ -267,6 +282,16 @@ namespace libaxolotl.util
                     ((bytes[offset + 1] & 0xffL) << 16) |
                     ((bytes[offset + 2] & 0xffL) << 8) |
                     ((bytes[offset + 3] & 0xffL));
+        }
+
+        public static long byteArray5ToLong(byte[] bytes, int offset)
+        {
+            return
+                ((bytes[offset] & 0xffL) << 32) |
+                ((bytes[offset + 1] & 0xffL) << 24) |
+                ((bytes[offset + 2] & 0xffL) << 16) |
+                ((bytes[offset + 3] & 0xffL) << 8) |
+                ((bytes[offset + 4] & 0xffL));
         }
 
         public static long byteArrayToLong(byte[] bytes, int offset)

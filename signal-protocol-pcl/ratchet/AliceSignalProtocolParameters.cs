@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,17 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using libaxolotl.ecc;
+using libsignal.ecc;
 using Strilanc.Value;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.ratchet
+namespace libsignal.ratchet
 {
-    public class AliceAxolotlParameters
+    public class AliceSignalProtocolParameters
     {
 
         private readonly IdentityKeyPair ourIdentityKey;
@@ -36,7 +32,7 @@ namespace libaxolotl.ratchet
         private readonly May<ECPublicKey> theirOneTimePreKey;
         private readonly ECPublicKey theirRatchetKey;
 
-        private AliceAxolotlParameters(IdentityKeyPair ourIdentityKey, ECKeyPair ourBaseKey,
+        private AliceSignalProtocolParameters(IdentityKeyPair ourIdentityKey, ECKeyPair ourBaseKey,
                                        IdentityKey theirIdentityKey, ECPublicKey theirSignedPreKey,
                                        ECPublicKey theirRatchetKey, May<ECPublicKey> theirOneTimePreKey)
         {
@@ -135,9 +131,9 @@ namespace libaxolotl.ratchet
                 return this;
             }
 
-            public AliceAxolotlParameters create()
+            public AliceSignalProtocolParameters create()
             {
-                return new AliceAxolotlParameters(ourIdentityKey, ourBaseKey, theirIdentityKey,
+                return new AliceSignalProtocolParameters(ourIdentityKey, ourBaseKey, theirIdentityKey,
                                                   theirSignedPreKey, theirRatchetKey, theirOneTimePreKey);
             }
         }

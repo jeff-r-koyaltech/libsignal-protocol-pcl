@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost, langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,23 +16,20 @@
  */
 
 using Google.ProtocolBuffers;
-using libaxolotl.ecc;
-using libaxolotl.kdf;
-using libaxolotl.ratchet;
-using libaxolotl.util;
+using libsignal.ecc;
+using libsignal.kdf;
+using libsignal.ratchet;
+using libsignal.util;
 using Strilanc.Value;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static libaxolotl.state.StorageProtos;
-using static libaxolotl.state.StorageProtos.SessionStructure.Types;
+using static libsignal.state.StorageProtos;
+using static libsignal.state.StorageProtos.SessionStructure.Types;
 
-namespace libaxolotl.state
+namespace libsignal.state
 {
-	public class SessionState
+    public class SessionState
 	{
 		private static readonly int MAX_MESSAGE_KEYS = 2000;
 
@@ -460,7 +457,7 @@ namespace libaxolotl.state
 		public void setUnacknowledgedPreKeyMessage(May<uint> preKeyId, uint signedPreKeyId, ECPublicKey baseKey)
 		{
 			PendingPreKey.Builder pending = PendingPreKey.CreateBuilder()
-														 .SetSignedPreKeyId(signedPreKeyId)
+														 .SetSignedPreKeyId((int)signedPreKeyId)
 														 .SetBaseKey(ByteString.CopyFrom(baseKey.serialize()));
 
 			if (preKeyId.HasValue)
@@ -495,7 +492,7 @@ namespace libaxolotl.state
 
 				return
 					new UnacknowledgedPreKeyMessageItems(preKeyId,
-														 sessionStructure.PendingPreKey.SignedPreKeyId,
+														 (uint)sessionStructure.PendingPreKey.SignedPreKeyId,
 														 Curve.decodePoint(sessionStructure.PendingPreKey
 																						   .BaseKey
 																						   .ToByteArray(), 0));

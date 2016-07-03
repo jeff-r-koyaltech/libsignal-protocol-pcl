@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,20 +16,16 @@
  */
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl
+namespace libsignal
 {
-    public class AxolotlAddress
+    public class SignalProtocolAddress
     {
 
         private readonly String name;
         private readonly uint deviceId;
 
-        public AxolotlAddress(String name, uint deviceId)
+        public SignalProtocolAddress(String name, uint deviceId)
         {
             this.name = name;
             this.deviceId = deviceId;
@@ -53,9 +49,9 @@ namespace libaxolotl
         public override bool Equals(Object other)
         {
             if (other == null) return false;
-            if (!(other is AxolotlAddress)) return false;
+            if (!(other is SignalProtocolAddress)) return false;
 
-            AxolotlAddress that = (AxolotlAddress)other;
+            SignalProtocolAddress that = (SignalProtocolAddress)other;
             return this.name.Equals(that.name) && this.deviceId == that.deviceId;
         }
 

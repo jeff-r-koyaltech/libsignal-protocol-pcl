@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,19 +16,14 @@
  */
 
 using Google.ProtocolBuffers;
-using libaxolotl.ecc;
-using libaxolotl.util;
+using libsignal.ecc;
+using libsignal.util;
 using Strilanc.Value;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using static libaxolotl.protocol.WhisperProtos;
 
-namespace libaxolotl.protocol
+namespace libsignal.protocol
 {
-    public partial class PreKeyWhisperMessage : CiphertextMessage
+    public partial class PreKeySignalMessage : CiphertextMessage
     {
 
         private readonly uint version;
@@ -37,10 +32,10 @@ namespace libaxolotl.protocol
         private readonly uint signedPreKeyId;
         private readonly ECPublicKey baseKey;
         private readonly IdentityKey identityKey;
-        private readonly WhisperMessage message;
+        private readonly SignalMessage message;
         private readonly byte[] serialized;
 
-        public PreKeyWhisperMessage(byte[] serialized)
+        public PreKeySignalMessage(byte[] serialized)
         {
             try
             {
@@ -51,26 +46,29 @@ namespace libaxolotl.protocol
                     throw new InvalidVersionException("Unknown version: " + this.version);
                 }
 
-                WhisperProtos.PreKeyWhisperMessage preKeyWhisperMessage
-                    = WhisperProtos.PreKeyWhisperMessage.ParseFrom(ByteString.CopyFrom(serialized, 1,
+      if (this.version < CiphertextMessage.CURRENT_VERSION) {
+        throw new LegacyMessageException("Legacy version: " + this.version);
+      }
+                WhisperProtos.PreKeySignalMessage preKeySignalMessage
+                    = WhisperProtos.PreKeySignalMessage.ParseFrom(ByteString.CopyFrom(serialized, 1,
                                                                                        serialized.Length - 1));
 
-                if ((version == 2 && !preKeyWhisperMessage.HasPreKeyId) ||
-                    (version == 3 && !preKeyWhisperMessage.HasSignedPreKeyId) ||
-                    !preKeyWhisperMessage.HasBaseKey ||
-                    !preKeyWhisperMessage.HasIdentityKey ||
-                    !preKeyWhisperMessage.HasMessage)
+                if (
+                    !preKeySignalMessage.HasSignedPreKeyId ||
+                    !preKeySignalMessage.HasBaseKey ||
+                    !preKeySignalMessage.HasIdentityKey ||
+                    !preKeySignalMessage.HasMessage)
                 {
                     throw new InvalidMessageException("Incomplete message.");
                 }
 
                 this.serialized = serialized;
-                this.registrationId = preKeyWhisperMessage.RegistrationId;
-                this.preKeyId = preKeyWhisperMessage.HasPreKeyId ? new May<uint>(preKeyWhisperMessage.PreKeyId) : May<uint>.NoValue;
-                this.signedPreKeyId = preKeyWhisperMessage.HasSignedPreKeyId ? preKeyWhisperMessage.SignedPreKeyId : uint.MaxValue; // -1
-                this.baseKey = Curve.decodePoint(preKeyWhisperMessage.BaseKey.ToByteArray(), 0);
-                this.identityKey = new IdentityKey(Curve.decodePoint(preKeyWhisperMessage.IdentityKey.ToByteArray(), 0));
-                this.message = new WhisperMessage(preKeyWhisperMessage.Message.ToByteArray());
+                this.registrationId = preKeySignalMessage.RegistrationId;
+                this.preKeyId = preKeySignalMessage.HasPreKeyId ? new May<uint>(preKeySignalMessage.PreKeyId) : May<uint>.NoValue;
+                this.signedPreKeyId = preKeySignalMessage.HasSignedPreKeyId ? preKeySignalMessage.SignedPreKeyId : uint.MaxValue; // -1
+                this.baseKey = Curve.decodePoint(preKeySignalMessage.BaseKey.ToByteArray(), 0);
+                this.identityKey = new IdentityKey(Curve.decodePoint(preKeySignalMessage.IdentityKey.ToByteArray(), 0));
+                this.message = new SignalMessage(preKeySignalMessage.Message.ToByteArray());
             }
             catch (Exception e)
             {
@@ -79,9 +77,9 @@ namespace libaxolotl.protocol
             }
         }
 
-        public PreKeyWhisperMessage(uint messageVersion, uint registrationId, May<uint> preKeyId,
+        public PreKeySignalMessage(uint messageVersion, uint registrationId, May<uint> preKeyId,
                                     uint signedPreKeyId, ECPublicKey baseKey, IdentityKey identityKey,
-                                    WhisperMessage message)
+                                    SignalMessage message)
         {
             this.version = messageVersion;
             this.registrationId = registrationId;
@@ -91,8 +89,8 @@ namespace libaxolotl.protocol
             this.identityKey = identityKey;
             this.message = message;
 
-            WhisperProtos.PreKeyWhisperMessage.Builder builder =
-                WhisperProtos.PreKeyWhisperMessage.CreateBuilder()
+            WhisperProtos.PreKeySignalMessage.Builder builder =
+                WhisperProtos.PreKeySignalMessage.CreateBuilder()
                                                   .SetSignedPreKeyId(signedPreKeyId)
                                                   .SetBaseKey(ByteString.CopyFrom(baseKey.serialize()))
                                                   .SetIdentityKey(ByteString.CopyFrom(identityKey.serialize()))
@@ -140,7 +138,7 @@ namespace libaxolotl.protocol
             return baseKey;
         }
 
-        public WhisperMessage getWhisperMessage()
+        public SignalMessage getSignalMessage()
         {
             return message;
         }

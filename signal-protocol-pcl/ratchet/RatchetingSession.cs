@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,30 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using libaxolotl.ecc;
-using libaxolotl.kdf;
-using libaxolotl.state;
-using libaxolotl.util;
+using libsignal.ecc;
+using libsignal.kdf;
+using libsignal.protocol;
+using libsignal.state;
+using libsignal.util;
 using Strilanc.Value;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl.ratchet
+namespace libsignal.ratchet
 {
     public class RatchetingSession
     {
 
         public static void initializeSession(SessionState sessionState,
-                                             uint sessionVersion,
-                                             SymmetricAxolotlParameters parameters)
+                                             SymmetricSignalProtocolParameters parameters)
         {
             if (isAlice(parameters.getOurBaseKey().getPublicKey(), parameters.getTheirBaseKey()))
             {
-                AliceAxolotlParameters.Builder aliceParameters = AliceAxolotlParameters.newBuilder();
+                AliceSignalProtocolParameters.Builder aliceParameters = AliceSignalProtocolParameters.newBuilder();
 
                 aliceParameters.setOurBaseKey(parameters.getOurBaseKey())
                                .setOurIdentityKey(parameters.getOurIdentityKey())
@@ -47,11 +44,11 @@ namespace libaxolotl.ratchet
                                .setTheirSignedPreKey(parameters.getTheirBaseKey())
                                .setTheirOneTimePreKey(May<ECPublicKey>.NoValue);
 
-                RatchetingSession.initializeSession(sessionState, sessionVersion, aliceParameters.create());
+                RatchetingSession.initializeSession(sessionState, aliceParameters.create());
             }
             else
             {
-                BobAxolotlParameters.Builder bobParameters = BobAxolotlParameters.newBuilder();
+                BobSignalProtocolParameters.Builder bobParameters = BobSignalProtocolParameters.newBuilder();
 
                 bobParameters.setOurIdentityKey(parameters.getOurIdentityKey())
                              .setOurRatchetKey(parameters.getOurRatchetKey())
@@ -60,29 +57,24 @@ namespace libaxolotl.ratchet
                              .setTheirBaseKey(parameters.getTheirBaseKey())
                              .setTheirIdentityKey(parameters.getTheirIdentityKey());
 
-                RatchetingSession.initializeSession(sessionState, sessionVersion, bobParameters.create());
+                RatchetingSession.initializeSession(sessionState, bobParameters.create());
             }
         }
 
-        public static void initializeSession(SessionState sessionState,
-                                             uint sessionVersion,
-                                             AliceAxolotlParameters parameters)
+        public static void initializeSession(SessionState sessionState, AliceSignalProtocolParameters parameters)
 
         {
             try
             {
-                sessionState.setSessionVersion(sessionVersion);
+                sessionState.setSessionVersion(CiphertextMessage.CURRENT_VERSION);
                 sessionState.setRemoteIdentityKey(parameters.getTheirIdentityKey());
                 sessionState.setLocalIdentityKey(parameters.getOurIdentityKey().getPublicKey());
 
                 ECKeyPair sendingRatchetKey = Curve.generateKeyPair();
                 MemoryStream secrets = new MemoryStream();
 
-                if (sessionVersion >= 3)
-                {
-                    byte[] discontinuityBytes = getDiscontinuityBytes();
-                    secrets.Write(discontinuityBytes, 0, discontinuityBytes.Length);
-                }
+                byte[] discontinuityBytes = getDiscontinuityBytes();
+                secrets.Write(discontinuityBytes, 0, discontinuityBytes.Length);
 
                 byte[] agree1 = Curve.calculateAgreement(parameters.getTheirSignedPreKey(),
                                                        parameters.getOurIdentityKey().getPrivateKey());
@@ -96,14 +88,14 @@ namespace libaxolotl.ratchet
                 secrets.Write(agree3, 0, agree3.Length);
 
 
-                if (sessionVersion >= 3 && parameters.getTheirOneTimePreKey().HasValue)
+                if (parameters.getTheirOneTimePreKey().HasValue)
                 {
-                    byte[] agree4 = Curve.calculateAgreement(parameters.getTheirOneTimePreKey().ForceGetValue(),
+                    byte[] otAgree = Curve.calculateAgreement(parameters.getTheirOneTimePreKey().ForceGetValue(),
                                                            parameters.getOurBaseKey().getPrivateKey());
-                    secrets.Write(agree4, 0, agree4.Length);
+                    secrets.Write(otAgree, 0, otAgree.Length);
                 }
 
-                DerivedKeys derivedKeys = calculateDerivedKeys(sessionVersion, secrets.ToArray());
+                DerivedKeys derivedKeys = calculateDerivedKeys(secrets.ToArray());
                 Pair<RootKey, ChainKey> sendingChain = derivedKeys.getRootKey().createChain(parameters.getTheirRatchetKey(), sendingRatchetKey);
 
                 sessionState.addReceiverChain(parameters.getTheirRatchetKey(), derivedKeys.getChainKey());
@@ -117,23 +109,19 @@ namespace libaxolotl.ratchet
         }
 
         public static void initializeSession(SessionState sessionState,
-                                             uint sessionVersion,
-                                             BobAxolotlParameters parameters)
+                                             BobSignalProtocolParameters parameters)
         {
 
             try
             {
-                sessionState.setSessionVersion(sessionVersion);
+                sessionState.setSessionVersion(CiphertextMessage.CURRENT_VERSION);
                 sessionState.setRemoteIdentityKey(parameters.getTheirIdentityKey());
                 sessionState.setLocalIdentityKey(parameters.getOurIdentityKey().getPublicKey());
 
                 MemoryStream secrets = new MemoryStream();
 
-                if (sessionVersion >= 3)
-                {
-                    byte[] discontinuityBytes = getDiscontinuityBytes();
-                    secrets.Write(discontinuityBytes, 0, discontinuityBytes.Length);
-                }
+                byte[] discontinuityBytes = getDiscontinuityBytes();
+                secrets.Write(discontinuityBytes, 0, discontinuityBytes.Length);
 
                 byte[] agree1 = Curve.calculateAgreement(parameters.getTheirIdentityKey().getPublicKey(),
                                                        parameters.getOurSignedPreKey().getPrivateKey());
@@ -145,14 +133,14 @@ namespace libaxolotl.ratchet
                 secrets.Write(agree2, 0, agree2.Length);
                 secrets.Write(agree3, 0, agree3.Length);
 
-                if (sessionVersion >= 3 && parameters.getOurOneTimePreKey().HasValue)
+                if (parameters.getOurOneTimePreKey().HasValue)
                 {
-                    byte[] agree4 = Curve.calculateAgreement(parameters.getTheirBaseKey(),
+                    byte[] otAgree = Curve.calculateAgreement(parameters.getTheirBaseKey(),
                                                            parameters.getOurOneTimePreKey().ForceGetValue().getPrivateKey());
-                    secrets.Write(agree4, 0, agree4.Length);
+                    secrets.Write(otAgree, 0, otAgree.Length);
                 }
 
-                DerivedKeys derivedKeys = calculateDerivedKeys(sessionVersion, secrets.ToArray());
+                DerivedKeys derivedKeys = calculateDerivedKeys(secrets.ToArray());
 
                 sessionState.setSenderChain(parameters.getOurRatchetKey(), derivedKeys.getChainKey());
                 sessionState.setRootKey(derivedKeys.getRootKey());
@@ -174,9 +162,9 @@ namespace libaxolotl.ratchet
             return discontinuity;
         }
 
-        private static DerivedKeys calculateDerivedKeys(uint sessionVersion, byte[] masterSecret)
+        private static DerivedKeys calculateDerivedKeys(byte[] masterSecret)
         {
-            HKDF kdf = HKDF.createFor(sessionVersion);
+            HKDF kdf = new HKDFv3();
             byte[] derivedSecretBytes = kdf.deriveSecrets(masterSecret, Encoding.UTF8.GetBytes("WhisperText"), 64);
             byte[][] derivedSecrets = ByteUtil.split(derivedSecretBytes, 32, 32);
 

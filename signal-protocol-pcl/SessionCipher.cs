@@ -1,5 +1,5 @@
 ﻿/** 
- * Copyright (C) 2016 langboost
+ * Copyright (C) 2016 smndtrl, langboost
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,23 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using libaxolotl.ecc;
-using libaxolotl.protocol;
-using libaxolotl.ratchet;
-using libaxolotl.state;
-using libaxolotl.util;
+using libsignal.ecc;
+using libsignal.protocol;
+using libsignal.ratchet;
+using libsignal.state;
+using libsignal.util;
 using Strilanc.Value;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace libaxolotl
+namespace libsignal
 {
 
-	/**
-     * The main entry point for Axolotl encrypt/decrypt operations.
+    /**
+     * The main entry point for Signal Protocol encrypt/decrypt operations.
      *
      * Once a session has been established with {@link SessionBuilder},
      * this class can be used for all encrypt/decrypt operations within
@@ -39,7 +36,7 @@ namespace libaxolotl
      *
      * @author Moxie Marlinspike
      */
-	public class SessionCipher
+    public class SessionCipher
 	{
 
 		public static readonly Object SESSION_LOCK = new Object();
@@ -47,7 +44,7 @@ namespace libaxolotl
 		private readonly SessionStore sessionStore;
 		private readonly SessionBuilder sessionBuilder;
 		private readonly PreKeyStore preKeyStore;
-		private readonly AxolotlAddress remoteAddress;
+		private readonly SignalProtocolAddress remoteAddress;
 
 		/**
          * Construct a SessionCipher for encrypt/decrypt operations on a session.
@@ -59,7 +56,7 @@ namespace libaxolotl
          */
 		public SessionCipher(SessionStore sessionStore, PreKeyStore preKeyStore,
 							 SignedPreKeyStore signedPreKeyStore, IdentityKeyStore identityKeyStore,
-							 AxolotlAddress remoteAddress)
+							 SignalProtocolAddress remoteAddress)
 		{
 			this.sessionStore = sessionStore;
 			this.preKeyStore = preKeyStore;
@@ -68,7 +65,7 @@ namespace libaxolotl
 													 identityKeyStore, remoteAddress);
 		}
 
-		public SessionCipher(AxolotlStore store, AxolotlAddress remoteAddress)
+		public SessionCipher(SignalProtocolStore store, SignalProtocolAddress remoteAddress)
 			: this(store, store, store, store, remoteAddress)
 		{
 
@@ -93,7 +90,7 @@ namespace libaxolotl
 				uint sessionVersion = sessionState.getSessionVersion();
 
 				byte[] ciphertextBody = getCiphertext(sessionVersion, messageKeys, paddedMessage);
-				CiphertextMessage ciphertextMessage = new WhisperMessage(sessionVersion, messageKeys.getMacKey(),
+				CiphertextMessage ciphertextMessage = new SignalMessage(sessionVersion, messageKeys.getMacKey(),
 																		 senderEphemeral, chainKey.getIndex(),
 																		 previousCounter, ciphertextBody,
 																		 sessionState.getLocalIdentityKey(),
@@ -104,10 +101,10 @@ namespace libaxolotl
 					SessionState.UnacknowledgedPreKeyMessageItems items = sessionState.getUnacknowledgedPreKeyMessageItems();
 					uint localRegistrationId = sessionState.GetLocalRegistrationId();
 
-					ciphertextMessage = new PreKeyWhisperMessage(sessionVersion, localRegistrationId, items.getPreKeyId(),
+					ciphertextMessage = new PreKeySignalMessage(sessionVersion, localRegistrationId, items.getPreKeyId(),
 																 items.getSignedPreKeyId(), items.getBaseKey(),
 																 sessionState.getLocalIdentityKey(),
-																 (WhisperMessage)ciphertextMessage);
+																 (SignalMessage)ciphertextMessage);
 				}
 
 				sessionState.setSenderChainKey(chainKey.getNextChainKey());
@@ -119,19 +116,19 @@ namespace libaxolotl
 		/**
          * Decrypt a message.
          *
-         * @param  ciphertext The {@link PreKeyWhisperMessage} to decrypt.
+         * @param  ciphertext The {@link PreKeySignalMessage} to decrypt.
          *
          * @return The plaintext.
          * @throws InvalidMessageException if the input is not valid ciphertext.
          * @throws DuplicateMessageException if the input is a message that has already been received.
          * @throws LegacyMessageException if the input is a message formatted by a protocol version that
          *                                is no longer supported.
-         * @throws InvalidKeyIdException when there is no local {@link org.whispersystems.libaxolotl.state.PreKeyRecord}
+         * @throws InvalidKeyIdException when there is no local {@link org.whispersystems.libsignal.state.PreKeyRecord}
          *                               that corresponds to the PreKey ID in the message.
          * @throws InvalidKeyException when the message is formatted incorrectly.
          * @throws UntrustedIdentityException when the {@link IdentityKey} of the sender is untrusted.
          */
-		public byte[] decrypt(PreKeyWhisperMessage ciphertext)
+		public byte[] decrypt(PreKeySignalMessage ciphertext)
 
 		{
 			return decrypt(ciphertext, new NullDecryptionCallback());
@@ -140,7 +137,7 @@ namespace libaxolotl
 		/**
          * Decrypt a message.
          *
-         * @param  ciphertext The {@link PreKeyWhisperMessage} to decrypt.
+         * @param  ciphertext The {@link PreKeySignalMessage} to decrypt.
          * @param  callback   A callback that is triggered after decryption is complete,
          *                    but before the updated session state has been committed to the session
          *                    DB.  This allows some implementations to store the committed plaintext
@@ -153,19 +150,19 @@ namespace libaxolotl
          * @throws DuplicateMessageException if the input is a message that has already been received.
          * @throws LegacyMessageException if the input is a message formatted by a protocol version that
          *                                is no longer supported.
-         * @throws InvalidKeyIdException when there is no local {@link org.whispersystems.libaxolotl.state.PreKeyRecord}
+         * @throws InvalidKeyIdException when there is no local {@link org.whispersystems.libsignal.state.PreKeyRecord}
          *                               that corresponds to the PreKey ID in the message.
          * @throws InvalidKeyException when the message is formatted incorrectly.
          * @throws UntrustedIdentityException when the {@link IdentityKey} of the sender is untrusted.
          */
-		public byte[] decrypt(PreKeyWhisperMessage ciphertext, DecryptionCallback callback)
+		public byte[] decrypt(PreKeySignalMessage ciphertext, DecryptionCallback callback)
 
 		{
 			lock (SESSION_LOCK)
 			{
 				SessionRecord sessionRecord = sessionStore.LoadSession(remoteAddress);
 				May<uint> unsignedPreKeyId = sessionBuilder.process(sessionRecord, ciphertext);
-				byte[] plaintext = decrypt(sessionRecord, ciphertext.getWhisperMessage());
+				byte[] plaintext = decrypt(sessionRecord, ciphertext.getSignalMessage());
 
 				callback.handlePlaintext(plaintext);
 
@@ -183,7 +180,7 @@ namespace libaxolotl
 		/**
          * Decrypt a message.
          *
-         * @param  ciphertext The {@link WhisperMessage} to decrypt.
+         * @param  ciphertext The {@link SignalMessage} to decrypt.
          *
          * @return The plaintext.
          * @throws InvalidMessageException if the input is not valid ciphertext.
@@ -192,7 +189,7 @@ namespace libaxolotl
          *                                is no longer supported.
          * @throws NoSessionException if there is no established session for this contact.
          */
-		public byte[] decrypt(WhisperMessage ciphertext)
+		public byte[] decrypt(SignalMessage ciphertext)
 
 		{
 			return decrypt(ciphertext, new NullDecryptionCallback());
@@ -201,7 +198,7 @@ namespace libaxolotl
 		/**
          * Decrypt a message.
          *
-         * @param  ciphertext The {@link WhisperMessage} to decrypt.
+         * @param  ciphertext The {@link SignalMessage} to decrypt.
          * @param  callback   A callback that is triggered after decryption is complete,
          *                    but before the updated session state has been committed to the session
          *                    DB.  This allows some implementations to store the committed plaintext
@@ -216,7 +213,7 @@ namespace libaxolotl
          *                                is no longer supported.
          * @throws NoSessionException if there is no established session for this contact.
          */
-		public byte[] decrypt(WhisperMessage ciphertext, DecryptionCallback callback)
+		public byte[] decrypt(SignalMessage ciphertext, DecryptionCallback callback)
 
 		{
 			lock (SESSION_LOCK)
@@ -238,7 +235,7 @@ namespace libaxolotl
 			}
 		}
 
-		private byte[] decrypt(SessionRecord sessionRecord, WhisperMessage ciphertext)
+		private byte[] decrypt(SessionRecord sessionRecord, SignalMessage ciphertext)
 		{
 			lock (SESSION_LOCK)
 			{
@@ -280,7 +277,7 @@ namespace libaxolotl
 			}
 		}
 
-		private byte[] decrypt(SessionState sessionState, WhisperMessage ciphertextMessage)
+		private byte[] decrypt(SessionState sessionState, SignalMessage ciphertextMessage)
 		{
 			if (!sessionState.hasSenderChain())
 			{

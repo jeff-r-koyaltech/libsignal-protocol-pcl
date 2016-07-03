@@ -84,7 +84,6 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="BasicTests.cs" />
     <Compile Include="DateUtil.cs" />
     <Compile Include="ecc\Curve25519Test.cs" />
     <Compile Include="groups\GroupCipherTest.cs" />
@@ -97,9 +96,9 @@
     <Compile Include="SessionBuilderTest.cs" />
     <Compile Include="SessionCipherTest.cs" />
     <Compile Include="SimultaneousInitiateTests.cs" />
-    <Compile Include="TestInMemoryAxolotlStore.cs" />
+    <Compile Include="TestInMemorySignalProtocolStore.cs" />
     <Compile Include="TestInMemoryIdentityKeyStore.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="fingerprint\NumericFingerprintGeneratorTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\signal-protocol-pcl\signal-protocol-pcl.csproj">
