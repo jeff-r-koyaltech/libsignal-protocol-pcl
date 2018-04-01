@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>$id$</id>
+    <version>$version$</version>
+    <title>$title$</title>
+    <authors>langboost</authors>
+    <owners>langboost</owners>
+    <licenseUrl>https://github.com/langboost/libsignal-protocol-pcl/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/langboost/libsignal-protocol-pcl</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/langboost/libaxolotl-uwp/master/NuGetIcon.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Portable implementation of the Signal protocol.</description>
+    <releaseNotes>Portable implementation of the Signal protocol.</releaseNotes>
+    <copyright>Copyright 2018</copyright>
+    <tags>signal pcl</tags>
+  </metadata>
+</package>
