@@ -104,7 +104,7 @@ namespace org.whispersystems.libsignal.fingerprint
                 aliceFingerprint.getScannableFingerprint().compareTo(bobFingerprint.getScannableFingerprint().getSerialized());
                 throw new Exception("Should mismatch!");
             }
-            catch (FingerprintIdentifierMismatchException e)
+            catch (FingerprintIdentifierMismatchException)
             {
                 // good
             }
@@ -114,7 +114,7 @@ namespace org.whispersystems.libsignal.fingerprint
                 bobFingerprint.getScannableFingerprint().compareTo(aliceFingerprint.getScannableFingerprint().getSerialized());
                 throw new Exception("Should mismatch!");
             }
-            catch (FingerprintIdentifierMismatchException e)
+            catch (FingerprintIdentifierMismatchException)
             {
                 // good
             }
